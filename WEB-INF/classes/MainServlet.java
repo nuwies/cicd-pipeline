@@ -25,7 +25,7 @@ public class MainServlet extends HttpServlet {
 						"</div>\n" +
 						"<div style=\"text-align: center;\">\n" +
 						"<form action=\"play\" method=\"GET\">\n" + 
-                    	"<input type=\"submit\" value=\"GALLERY\" />\n" +
+                    	"<input type=\"submit\" value=\"PLAY\" />\n" +
                     	"</form>\n" +
 						"</div>\n" +
 												"<div style=\"text-align: center;\">\n" +
