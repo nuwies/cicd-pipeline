@@ -22,13 +22,13 @@ public class LoginServlet extends HttpServlet {
       Connection con = null;
       try {
          try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
          } catch (Exception ex) {
             System.out.println("Message: " + ex.getMessage());
          }
          System.out.println("Trying to connect");
          System.out.println("...");
-         con = DriverManager.getConnection("jdbc:mysql://localhost:3306/assignment1?connectTimeout=4000", "root", "mysql1");
+         con = DriverManager.getConnection("jdbc:mysql://localhost:3306/assignment1", "root", "");
          System.out.println("Connected!");
          Statement stmt2 = con.createStatement();
          ResultSet rs = stmt2.executeQuery("select * from accounts");

@@ -64,5 +64,14 @@
     <url-pattern>/search</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>uploadquestion</servlet-name>
+    <servlet-class>QuestionUploadServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>uploadquestion</servlet-name>
+    <url-pattern>/uploadquestion</url-pattern>
+  </servlet-mapping>
 
 </web-app>
