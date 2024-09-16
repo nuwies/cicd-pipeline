@@ -1,0 +1,2 @@
+/WEB-INF/classes/*.class
+/WEB-INF/db.properties
