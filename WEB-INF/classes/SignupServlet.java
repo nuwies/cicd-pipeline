@@ -5,7 +5,7 @@ import java.io.*;
 import org.mindrot.jbcrypt.BCrypt;
 import java.util.Properties;
 
-public class LoginServlet extends HttpServlet {
+public class SignupServlet extends HttpServlet {
 
   private String dbUrl;
   private String dbUsername;
@@ -26,7 +26,7 @@ public class LoginServlet extends HttpServlet {
       }
   }
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     HttpSession session = request.getSession(false);
     if (session != null && session.getAttribute("username") != null) {
       response.sendRedirect("main");
@@ -35,60 +35,61 @@ public class LoginServlet extends HttpServlet {
     
     response.setContentType("text/html");
     PrintWriter out = response.getWriter();
-    out.println("<html>"
+    out.println("<!DOCTYPE html>"
+        + "<html lang=\"en\">"
         + "<head>"
-        + "<title>Login</title>"
+        + "<meta charset=\"UTF-8\">"
+        + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+        + "<title>Signup</title>"
         + "</head>"
         + "<body>"
-        + "<h1>Login</h1>"
-        + "<form action=\"login\" method=\"POST\">"
+        + "<h1>Signup</h1>"
+        + "<form action=\"signup\" method=\"POST\">"
         + "<label for=\"username\">Username:</label>"
         + "<input type=\"text\" id=\"username\" name=\"username\" required>"
         + "<br><br>"
         + "<label for=\"password\">Password:</label>"
-        + "<input type=\"password\" id=\"password\" name=\"password\" required />"
+        + "<input type=\"password\" id=\"password\" name=\"password\" required>"
         + "<br><br>"
-        + "<input type=\"submit\" value=\"Log in\" />"
+        + "<label for=\"confirmPassword\">Confirm Password:</label>"
+        + "<input type=\"password\" id=\"confirmPassword\" name=\"confirmPassword\" required>"
+        + "<br><br>"
+        + "<input type=\"submit\" value=\"Sign up\">"
         + "</form>"
         + "</body>"
         + "</html>");
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     response.setContentType("text/html");
     PrintWriter out = response.getWriter();
 
     String username = request.getParameter("username");
     String password = request.getParameter("password");
+    String confirmPassword = request.getParameter("confirmPassword");
 
-    if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
-      out.println("Username or Password cannot be empty.");
+    if (!password.equals(confirmPassword)) {
+      out.print("Passwords do not match. Please try again.");
       return;
     }
 
-    try (Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-        PreparedStatement ps = con.prepareStatement("SELECT password FROM users WHERE username = ?")) {
+    String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
+    try {
       Class.forName("com.mysql.cj.jdbc.Driver");
-
+      Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
+      PreparedStatement ps = con.prepareStatement("INSERT INTO users (username, password) VALUES (?, ?)");
       ps.setString(1, username);
-      try (ResultSet rs = ps.executeQuery()) {
-        if (rs.next()) {
-          String storedHashedPassword = rs.getString("password");
-          if (BCrypt.checkpw(password, storedHashedPassword)) {
-            HttpSession session = request.getSession(true);
-            session.setAttribute("username", username);
-            response.sendRedirect("main");
-          } else {
-            out.println("Invalid username or password.");
-          }
-        } else {
-          out.println("Invalid username or password.");
-        }
+      ps.setString(2, hashedPassword);
+      int i = ps.executeUpdate();
+      if (i > 0) {
+        out.print("You are successfully registered :)");
+      } else {
+        out.print("Registration failed :(");
       }
-    } catch (Exception ex) {
-      ex.printStackTrace();
-      out.println("An error occurred: " + ex.getMessage());
+    } catch (Exception e) {
+      e.printStackTrace();
+      out.print("An error occurred: " + e.getMessage());
     }
   }
 }
