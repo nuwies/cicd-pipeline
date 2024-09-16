@@ -14,6 +14,16 @@
     <servlet-name>upload</servlet-name>
     <url-pattern>/upload</url-pattern>
   </servlet-mapping>
+
+  <servlet>
+    <servlet-name>signup</servlet-name>
+    <servlet-class>SignupServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>signup</servlet-name>
+    <url-pattern>/signup</url-pattern>
+  </servlet-mapping>
   
   <servlet>
     <servlet-name>login</servlet-name>
