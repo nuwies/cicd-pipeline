@@ -1,1 +1,3 @@
-images/
+media/
+*.class
+WEB-INF/db.properties

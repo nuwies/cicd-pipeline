@@ -74,4 +74,14 @@
     <url-pattern>/uploadquestion</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>quiz</servlet-name>
+    <servlet-class>QuizServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>quiz</servlet-name>
+    <url-pattern>/quiz</url-pattern>
+  </servlet-mapping>
+
 </web-app>
