@@ -1,5 +1,6 @@
-# Assignment 1 for COMP 3940 
-## Setup Tomcat Server
+# Assignment 1 for COMP 3940
+
+## Setup
 
 1. Download [tomcat 10](https://tomcat.apache.org/download-10.cgi).
 
@@ -9,13 +10,19 @@
 
 4. In the `~/tomcat/webapps` directory clone this repository.
 
-5. Open the `~/tomcat/bin directory` in **CMD** or **Terminal** and run the command: `startup.bat` for Windows and `sh startup.sh` for Mac.
+5. In the `WEB-INF` directory, add a file named `db.properties`
 
-## MySQL DB
+   - Inside the `db.properties` file, add the following:
 
-The code uses your local machines MySQL server instance. The database used is expected to be called **assignment1**.
+   ```
+       db.url=your_database_url
+       db.username=your_username
+       db.password=your_password
+   ```
 
-To setup MySQL to run this application, use the following commands found in `sqlcommands.sql`
+6. Open the `~/tomcat/bin directory` in **CMD** or **Terminal** and run the command: `startup.bat` for Windows and `sh startup.sh` for Mac.
 
 ## Contributors
+
 - Luke Chung
+- Sarah Liu

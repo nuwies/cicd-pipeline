@@ -3,38 +3,43 @@ import jakarta.servlet.*;
 import java.io.*;
 
 public class MainServlet extends HttpServlet {
-  
-  public void doGet(HttpServletRequest request,
-      HttpServletResponse response)
-      throws ServletException, IOException {
-      HttpSession session = request.getSession(false);
-      if (session == null) {
-        response.setStatus(302);
-	response.sendRedirect("login");	
-      }		
-      String title = "Logged in as: ";
-      title += session.getAttribute("USER_ID");
-      response.setContentType("text/html");
-      String docType = "<!doctype html public \"-//w3c//dtd html 4.0 " + "transitional//en\">\n";
-      String html = docType + "<html>\n" + "<head><title>" + title + "</title></head>\n"
-						+ "<body bgcolor=\"#f0f0f0\">\n" + "<h1 align=\"center\">" + title + "</h1>\n"+
-						"<div style=\"text-align: center;\">\n" +
-						"<form action=\"upload\" method=\"GET\">\n" + 
-                    	"<input type=\"submit\" value=\"UPLOAD\" />\n" +
-                    	"</form>\n" +
-						"</div>\n" +
-						"<div style=\"text-align: center;\">\n" +
-						"<form action=\"play\" method=\"GET\">\n" + 
-                    	"<input type=\"submit\" value=\"PLAY\" />\n" +
-                    	"</form>\n" +
-						"</div>\n" +
-												"<div style=\"text-align: center;\">\n" +
-						"<form action=\"logout\" method=\"GET\">\n" + 
-                    	"<input type=\"submit\" value=\"LOGOUT\" />\n" +
-                    	"</form>\n" +
-						"</div>\n" +  "</body></html>";
 
-      PrintWriter out = response.getWriter();
-      out.println(html);
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    HttpSession session = request.getSession(false);
+    if (session == null) {
+      response.setStatus(HttpServletResponse.SC_FOUND); // 302
+      response.sendRedirect("login");
+      return;
+    }
+
+    String username = (String) session.getAttribute("username");
+    String title = "Logged in as: " + username;
+    response.setContentType("text/html");
+    String docType = "<!doctype html public \"-//w3c//dtd html 4.0 transitional//en\">";
+    String html = docType + "<html>"
+        + "<head>"
+        + "<title>" + title + "</title>"
+        + "</head>"
+        + "<body bgcolor=\"#f0f0f0\">"
+        + "<h1 align=\"center\">" + title + "</h1>"
+        + "<div style=\"text-align: center;\">"
+        + "<form action=\"uploadquestion\" method=\"GET\">"
+        + "<input type=\"submit\" value=\"UPLOAD QUESTION\" />"
+        + "</form>"
+        + "</div>"
+        + "<div style=\"text-align: center;\">"
+        + "<form action=\"play\" method=\"GET\">"
+        + "<input type=\"submit\" value=\"GALLERY\" />"
+        + "</form>"
+        + "</div>"
+        + "<div style=\"text-align: center;\">"
+        + "<form action=\"logout\" method=\"GET\">"
+        + "<input type=\"submit\" value=\"LOGOUT\" />"
+        + "</form>"
+        + "</div>"
+        + "</body>"
+        + "</html>";
+    PrintWriter out = response.getWriter();
+    out.println(html);
   }
 }

@@ -1,21 +1,30 @@
+-- Users table
+CREATE TABLE users(
+    id INT NOT NULL AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    PRIMARY KEY(id),
+    UNIQUE(username)
+);
+
 -- Question table
 CREATE TABLE questions(
-    Id INT NOT NULL AUTO_INCREMENT,
-    Category VARCHAR(255) NOT NULL,
-    Question VARCHAR(255) NOT NULL,
-    CorrectAnswer VARCHAR(255) NOT NULL,
-    WrongAnswer1 VARCHAR(255) NOT NULL,
-    WrongAnswer2 VARCHAR(255),
-    WrongAnswer3 VARCHAR(255),
-    ContentName VARCHAR(255),
-    DateCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY(Id),
-    FOREIGN KEY(Category) REFERENCES categories(name)
+    id INT NOT NULL AUTO_INCREMENT,
+    category VARCHAR(255) NOT NULL,
+    question VARCHAR(255) NOT NULL,
+    correct_answer VARCHAR(255) NOT NULL,
+    wrong_answer_1 VARCHAR(255) NOT NULL,
+    wrong_answer_2 VARCHAR(255),
+    wrong_answer_3 VARCHAR(255),
+    content_path VARCHAR(255),
+    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(id),
+    FOREIGN KEY(category) REFERENCES categories(name)
 );
 
 -- Categories table
 CREATE TABLE categories (
     name VARCHAR(255) PRIMARY KEY,         
-    contentpath VARCHAR(255) NOT NULL,     
-    datecreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+    content_path VARCHAR(255) NOT NULL,     
+    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
 );

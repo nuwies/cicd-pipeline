@@ -6,13 +6,13 @@
 
 <web-app>
   <servlet>
-    <servlet-name>upload</servlet-name>
-    <servlet-class>FileUploadServlet</servlet-class>
+    <servlet-name>signup</servlet-name>
+    <servlet-class>SignupServlet</servlet-class>
   </servlet>
-  
+
   <servlet-mapping>
-    <servlet-name>upload</servlet-name>
-    <url-pattern>/upload</url-pattern>
+    <servlet-name>signup</servlet-name>
+    <url-pattern>/signup</url-pattern>
   </servlet-mapping>
   
   <servlet>
