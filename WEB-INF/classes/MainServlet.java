@@ -51,7 +51,7 @@ public class MainServlet extends DbConnectionServlet {
         }
 
         html.append("<form action=\"play\" method=\"GET\">"
-                + "<input type=\"submit\" value=\"GALLERY\" />"
+                + "<input type=\"submit\" value=\"PLAY\" />"
                 + "</form>"
                 + "</div>"
                 + "<div style=\"text-align: center;\">"
