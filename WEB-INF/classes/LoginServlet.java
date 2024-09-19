@@ -6,26 +6,7 @@ import java.io.*;
 import org.mindrot.jbcrypt.BCrypt;
 import java.util.Properties;
 
-public class LoginServlet extends HttpServlet {
-
-    private String dbUrl;
-    private String dbUsername;
-    private String dbPassword;
-
-    public void init() throws ServletException {
-        Properties properties = new Properties();
-        try (InputStream input = getServletContext().getResourceAsStream("/WEB-INF/db.properties")) {
-            if (input == null) {
-                throw new ServletException("Sorry, unable to find db.properties");
-            }
-            properties.load(input);
-            dbUrl = properties.getProperty("db.url");
-            dbUsername = properties.getProperty("db.username");
-            dbPassword = properties.getProperty("db.password");
-        } catch (IOException e) {
-            throw new ServletException("Error loading database properties", e);
-        }
-    }
+public class LoginServlet extends DbConnectionServlet {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
@@ -51,6 +32,7 @@ public class LoginServlet extends HttpServlet {
                 + "<br><br>"
                 + "<input type=\"submit\" value=\"Log in\" />"
                 + "</form>"
+                + "<p>Don't have an account? <a href=\"signup\">Sign up</a></p>"
                 + "</body>"
                 + "</html>");
     }
@@ -67,7 +49,8 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        try (Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword); PreparedStatement ps = con.prepareStatement("SELECT password FROM users WHERE username = ?")) {
+        try (Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
+                PreparedStatement ps = con.prepareStatement("SELECT password FROM users WHERE username = ?")) {
 
             Class.forName("com.mysql.cj.jdbc.Driver");
 
@@ -81,14 +64,17 @@ public class LoginServlet extends HttpServlet {
                         response.sendRedirect("main");
                     } else {
                         out.println("Invalid username or password.");
+                        out.println("<a href=\"login\">Back to log in</a>");
                     }
                 } else {
                     out.println("Invalid username or password.");
+                    out.println("<a href=\"login\">Back to log in</a>");
                 }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
             out.println("An error occurred: " + ex.getMessage());
+            out.println("<a href=\"login\">Back to log in</a>");
         }
     }
 }

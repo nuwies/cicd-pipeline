@@ -20,9 +20,12 @@
        db.password=your_password
    ```
 
-6. Open the `~/tomcat/bin directory` in **CMD** or **Terminal** and run the command: `startup.bat` for Windows and `sh startup.sh` for Mac.
+6. Compile all '.java' files in the '/classes' directory using `javac -cp ".;path/to/tomcat/lib/servlet-api.jar;path/to/mysql-connector-j-x.x.x.jar;path/to/jbcrypt.jar" *.java`
+
+7. Open the `~/tomcat/bin directory` in **CMD** or **Terminal** and run the command: `startup.bat` for Windows and `startup.sh` for Mac.
 
 ## Contributors
 
 - Luke Chung
 - Sarah Liu
+- Jimmy Tsang
