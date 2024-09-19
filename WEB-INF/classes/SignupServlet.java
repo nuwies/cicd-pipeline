@@ -5,26 +5,7 @@ import java.io.*;
 import org.mindrot.jbcrypt.BCrypt;
 import java.util.Properties;
 
-public class SignupServlet extends HttpServlet {
-
-  private String dbUrl;
-  private String dbUsername;
-  private String dbPassword;
-
-  public void init() throws ServletException {
-      Properties properties = new Properties();
-      try (InputStream input = getServletContext().getResourceAsStream("/WEB-INF/db.properties")) {
-          if (input == null) {
-              throw new ServletException("Sorry, unable to find db.properties");
-          }
-          properties.load(input);
-          dbUrl = properties.getProperty("db.url");
-          dbUsername = properties.getProperty("db.username");
-          dbPassword = properties.getProperty("db.password");
-      } catch (IOException e) {
-          throw new ServletException("Error loading database properties", e);
-      }
-  }
+public class SignupServlet extends DbConnectionServlet {
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     HttpSession session = request.getSession(false);
@@ -56,6 +37,7 @@ public class SignupServlet extends HttpServlet {
         + "<br><br>"
         + "<input type=\"submit\" value=\"Sign up\">"
         + "</form>"
+        + "<p>Already have an account? <a href=\"login\">Login</a></p>"
         + "</body>"
         + "</html>");
   }
@@ -69,7 +51,8 @@ public class SignupServlet extends HttpServlet {
     String confirmPassword = request.getParameter("confirmPassword");
 
     if (!password.equals(confirmPassword)) {
-      out.print("Passwords do not match. Please try again.");
+      out.println("Passwords do not match. Please try again.");
+      out.println("<a href=\"signup\">Back to sign up</a>");
       return;
     }
 
@@ -78,18 +61,39 @@ public class SignupServlet extends HttpServlet {
     try {
       Class.forName("com.mysql.cj.jdbc.Driver");
       Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-      PreparedStatement ps = con.prepareStatement("INSERT INTO users (username, password) VALUES (?, ?)");
-      ps.setString(1, username);
-      ps.setString(2, hashedPassword);
-      int i = ps.executeUpdate();
-      if (i > 0) {
-        out.print("You are successfully registered :)");
+  
+      PreparedStatement checkUserPs = con.prepareStatement("SELECT COUNT(*) FROM users WHERE username = ?");
+      checkUserPs.setString(1, username);
+      ResultSet rs = checkUserPs.executeQuery();
+  
+      if (rs.next() && rs.getInt(1) > 0) {
+          out.println("Username already exists. Please choose a different username.");
+          out.println("<a href=\"signup\">Back to sign up</a>");
       } else {
-        out.print("Registration failed :(");
+          PreparedStatement ps = con.prepareStatement("INSERT INTO users (username, password) VALUES (?, ?)");
+          ps.setString(1, username);
+          ps.setString(2, hashedPassword);
+          int i = ps.executeUpdate();
+          if (i > 0) {
+            HttpSession session = request.getSession(true);
+            session.setAttribute("username", username);
+  
+            // Success message and manually go to main page
+            out.println("You are successfully registered :)");
+            out.println("<a href=\"main\">Go to main page</a>");
+
+            // OR Redirect straight to main after successful sign up
+            // response.sendRedirect("main"); 
+          } else {
+            out.println("Registration failed :(");
+            out.println("<a href=\"signup\">Back to sign up</a>");
+          }
       }
-    } catch (Exception e) {
+  } catch (Exception e) {
       e.printStackTrace();
-      out.print("An error occurred: " + e.getMessage());
-    }
+      out.println("An error occurred: " + e.getMessage());
+      out.println("<a href=\"signup\">Back to sign up</a>");
+  }
+  
   }
 }
