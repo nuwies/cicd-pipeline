@@ -5,26 +5,7 @@ import java.sql.*;
 import java.io.*;
 import java.util.Properties;
 
-public class PlayServlet extends HttpServlet {
-
-    String dbUrl;
-    String dbUsername;
-    String dbPassword;
-
-    public void init() throws ServletException {
-        Properties properties = new Properties();
-        try (InputStream input = getServletContext().getResourceAsStream("/WEB-INF/db.properties")) {
-            if (input == null) {
-                throw new ServletException("Sorry, unable to find db.properties");
-            }
-            properties.load(input);
-            dbUrl = properties.getProperty("db.url");
-            dbUsername = properties.getProperty("db.username");
-            dbPassword = properties.getProperty("db.password");
-        } catch (IOException e) {
-            throw new ServletException("Error loading database properties", e);
-        }
-    }
+public class PlayServlet extends DbConnectionServlet {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Connection con = null;

@@ -3,6 +3,7 @@ CREATE TABLE users(
     id INT NOT NULL AUTO_INCREMENT,
     username VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
+    user_type VARCHAR(255) NOT NULL DEFAULT 'general',
     PRIMARY KEY(id),
     UNIQUE(username)
 );
@@ -19,7 +20,7 @@ CREATE TABLE questions(
     content_path VARCHAR(255),
     date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(id),
-    FOREIGN KEY(category) REFERENCES categories(id)
+    FOREIGN KEY(category) REFERENCES categories(id) ON DELETE CASCADE
 );
 
 -- Categories table
