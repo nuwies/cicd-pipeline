@@ -10,7 +10,7 @@ CREATE TABLE users(
 -- Question table
 CREATE TABLE questions(
     id INT NOT NULL AUTO_INCREMENT,
-    category VARCHAR(255) NOT NULL,
+    category INT NOT NULL,
     question VARCHAR(255) NOT NULL,
     correct_answer VARCHAR(255) NOT NULL,
     wrong_answer_1 VARCHAR(255) NOT NULL,
@@ -19,12 +19,15 @@ CREATE TABLE questions(
     content_path VARCHAR(255),
     date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(id),
-    FOREIGN KEY(category) REFERENCES categories(name)
+    FOREIGN KEY(category) REFERENCES categories(id)
 );
 
 -- Categories table
 CREATE TABLE categories (
-    name VARCHAR(255) PRIMARY KEY,         
+    id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255),         
     content_path VARCHAR(255) NOT NULL,     
-    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(id),
+    UNIQUE(name)
 );

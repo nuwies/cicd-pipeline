@@ -23,7 +23,7 @@ public class MainServlet extends HttpServlet {
         + "<body bgcolor=\"#f0f0f0\">"
         + "<h1 align=\"center\">" + title + "</h1>"
         + "<div style=\"text-align: center;\">"
-        + "<form action=\"uploadquestion\" method=\"GET\">"
+        + "<form action=\"upload-question\" method=\"GET\">"
         + "<input type=\"submit\" value=\"UPLOAD QUESTION\" />"
         + "</form>"
         + "</div>"

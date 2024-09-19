@@ -44,10 +44,11 @@ public class QuestionUploadServlet extends HttpServlet {
       try {
          con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
          Statement stmt = con.createStatement();
-         result = stmt.executeQuery("SELECT name FROM categories");
+         result = stmt.executeQuery("SELECT * FROM categories");
          while(result.next()) {
             String category = result.getString("name");
-            categorySelect += "<option value='" + category + "'>" + category + "</option>"; 
+            String categoryID = result.getString("id");
+            categorySelect += "<option value='" + categoryID + "'>" + category + "</option>"; 
          }
       } catch (SQLException ex) {
          while (ex != null) {
@@ -83,7 +84,7 @@ public class QuestionUploadServlet extends HttpServlet {
    protected void doPost(HttpServletRequest request, HttpServletResponse response)
          throws ServletException, IOException {
       Part filePart = request.getPart("filename");
-      String category = request.getParameter("category");
+      String categoryID = request.getParameter("category");
       String question = request.getParameter("question");
       String correctAnswer = request.getParameter("correct-answer");
       String wrongAnswer1 = request.getParameter("wrong-answer1");
@@ -107,18 +108,20 @@ public class QuestionUploadServlet extends HttpServlet {
          con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
          PreparedStatement preparedStatement = con
                .prepareStatement(
-                     "INSERT INTO questions (Category, Question, CorrectAnswer, WrongAnswer1, WrongAnswer2, WrongAnswer3, ContentName) VALUES (?,?,?,?,?,?,?)");
-         preparedStatement.setString(1, category);
+                     "INSERT INTO questions (category, question, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, content_path) VALUES (?,?,?,?,?,?,?)");
+
+         preparedStatement.setInt(1, Integer.valueOf(categoryID));
          preparedStatement.setString(2, question);
          preparedStatement.setString(3, correctAnswer);
          preparedStatement.setString(4, wrongAnswer1);
          preparedStatement.setString(5, wrongAnswer2);
          preparedStatement.setString(6, wrongAnswer3);
          preparedStatement.setString(7, "media/" + fileName);
-         int row = preparedStatement.executeUpdate();
+         preparedStatement.executeUpdate();
          preparedStatement.close();
       } catch (SQLException ex) {
          while (ex != null) {
+            System.out.println("Uploading error!");
             System.out.println("Message: " + ex.getMessage());
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("ErrorCode: " + ex.getErrorCode());

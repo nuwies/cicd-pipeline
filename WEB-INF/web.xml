@@ -65,13 +65,13 @@
   </servlet-mapping>
 
   <servlet>
-    <servlet-name>uploadquestion</servlet-name>
+    <servlet-name>upload-question</servlet-name>
     <servlet-class>QuestionUploadServlet</servlet-class>
   </servlet>
   
   <servlet-mapping>
-    <servlet-name>uploadquestion</servlet-name>
-    <url-pattern>/uploadquestion</url-pattern>
+    <servlet-name>upload-question</servlet-name>
+    <url-pattern>/upload-question</url-pattern>
   </servlet-mapping>
 
   <servlet>
