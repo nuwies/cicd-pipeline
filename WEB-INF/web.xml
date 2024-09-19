@@ -6,16 +6,6 @@
 
 <web-app>
   <servlet>
-    <servlet-name>upload</servlet-name>
-    <servlet-class>FileUploadServlet</servlet-class>
-  </servlet>
-  
-  <servlet-mapping>
-    <servlet-name>upload</servlet-name>
-    <url-pattern>/upload</url-pattern>
-  </servlet-mapping>
-
-  <servlet>
     <servlet-name>signup</servlet-name>
     <servlet-class>SignupServlet</servlet-class>
   </servlet>
@@ -74,5 +64,24 @@
     <url-pattern>/search</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>upload-question</servlet-name>
+    <servlet-class>QuestionUploadServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>upload-question</servlet-name>
+    <url-pattern>/upload-question</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>quiz</servlet-name>
+    <servlet-class>QuizServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>quiz</servlet-name>
+    <url-pattern>/quiz</url-pattern>
+  </servlet-mapping>
 
 </web-app>
