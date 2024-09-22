@@ -13,6 +13,13 @@ public class QuestionUploadServlet extends DbConnectionServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            response.setStatus(HttpServletResponse.SC_FOUND);
+            response.sendRedirect("login");
+            return;
+        }
+      
         Connection con = null;
         ResultSet result = null;
         String categorySelect = "";

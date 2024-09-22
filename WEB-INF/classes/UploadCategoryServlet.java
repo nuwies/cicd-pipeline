@@ -8,6 +8,13 @@ public class UploadCategoryServlet extends DbConnectionServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            response.setStatus(HttpServletResponse.SC_FOUND);
+            response.sendRedirect("login");
+            return;
+        }
+      
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
         out.println("<!DOCTYPE html>"
