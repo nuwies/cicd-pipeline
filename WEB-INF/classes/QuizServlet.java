@@ -13,10 +13,18 @@ import java.util.Collections;
 public class QuizServlet extends DbConnectionServlet {
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {      
+        // check if user is logged in
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+          response.setStatus(HttpServletResponse.SC_FOUND);
+          response.sendRedirect("login");
+          return;
+        }
+      
         Connection con;
         ResultSet result;
-        HttpSession session = request.getSession();
+        session = request.getSession();
 
         String selectedCategory = "";
         String question = "";

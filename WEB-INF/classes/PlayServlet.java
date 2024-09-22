@@ -8,13 +8,21 @@ import java.util.Properties;
 public class PlayServlet extends DbConnectionServlet {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // check if user is logged in
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+          response.setStatus(HttpServletResponse.SC_FOUND);
+          response.sendRedirect("login");
+          return;
+        }
+      
         Connection con = null;
         Statement stmt = null;
         ResultSet rs = null;
         String errMsg = "";
 
         // reset session values for questions
-        HttpSession session = request.getSession();
+        session = request.getSession();
         session.setAttribute("selectedCategory", null);
         session.setAttribute("questionNumber", null);
 
