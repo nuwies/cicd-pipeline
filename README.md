@@ -20,9 +20,15 @@
        db.password=your_password
    ```
 
-6. Compile all '.java' files in the '/classes' directory using `javac -cp ".;path/to/tomcat/lib/servlet-api.jar;path/to/mysql-connector-j-x.x.x.jar;path/to/jbcrypt.jar" *.java`
+6. To setup your mysql tables, run the commands in `sqlcommands.sql`.
 
-7. Open the `~/tomcat/bin directory` in **CMD** or **Terminal** and run the command: `startup.bat` for Windows and `sh startup.sh` for Mac.
+7. Compile all '.java' files in the '/classes' directory using `javac -cp ".;path/to/tomcat/lib/servlet-api.jar;path/to/mysql-connector-j-x.x.x.jar;path/to/jbcrypt.jar" *.java`
+
+8. Open the `~/tomcat/bin directory` in **CMD** or **Terminal** and run the command: `startup.bat` for Windows and `sh startup.sh` for Mac.
+
+9. Once the tomcat server has been started go to `http://localhost:8081/comp3940-assignment1/signup` to create an account.
+
+10. After you have created an account, you must change one of the column values in table `users`. To access all features change `user_type` to `admin`. 
 
 ## Contributors
 

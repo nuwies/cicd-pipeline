@@ -11,11 +11,11 @@ public class PlayServlet extends DbConnectionServlet {
         // check if user is logged in
         HttpSession session = request.getSession(false);
         if (session == null) {
-          response.setStatus(HttpServletResponse.SC_FOUND);
-          response.sendRedirect("login");
-          return;
+            response.setStatus(HttpServletResponse.SC_FOUND);
+            response.sendRedirect("login");
+            return;
         }
-      
+
         Connection con = null;
         Statement stmt = null;
         ResultSet rs = null;
@@ -26,8 +26,7 @@ public class PlayServlet extends DbConnectionServlet {
         session.setAttribute("selectedCategory", null);
         session.setAttribute("questionNumber", null);
 
-
-        //setup html response
+        // setup html response
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
         out.println("<html>");
@@ -36,24 +35,25 @@ public class PlayServlet extends DbConnectionServlet {
         out.println("<h1>Select a Category</h1>");
 
         try {
-            //connect to db, assumes db name is clientserver, username root pw oracle1
+            // connect to db, assumes db name is clientserver, username root pw oracle1
             Class.forName("com.mysql.cj.jdbc.Driver");
             con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
             Statement stmt2 = con.createStatement();
 
-            //query db to fetch all categories from the 'categories' table
+            // query db to fetch all categories from the 'categories' table
             String query = "SELECT * FROM categories";
 
             rs = stmt2.executeQuery(query);
 
-            //dynamically generate a button for each category
+            // dynamically generate a button for each category
             out.println("<form action='quiz' method='GET'>"); // assuming 'quiz' is the servlet handling quizzes
             while (rs.next()) {
                 String categoryName = rs.getString("name");
                 String categoryID = rs.getString("id");
                 System.out.println("Category ID: " + categoryID);
                 System.out.println("Category: " + categoryName);
-                out.println("<button type='submit' name='category' value='" + categoryID + "'>" + categoryName + "</button><br>");
+                out.println("<button type='submit' name='category' value='" + categoryID + "'>" + categoryName
+                        + "</button><br>");
             }
             out.println("</form>");
 

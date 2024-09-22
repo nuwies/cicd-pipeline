@@ -19,10 +19,12 @@ public class QuestionUploadServlet extends DbConnectionServlet {
             response.sendRedirect("login");
             return;
         }
-      
+
         Connection con = null;
         ResultSet result = null;
         String categorySelect = "";
+        int numCategories = 0;
+
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (Exception ex) {
@@ -35,10 +37,14 @@ public class QuestionUploadServlet extends DbConnectionServlet {
             Statement stmt = con.createStatement();
             result = stmt.executeQuery("SELECT * FROM categories");
             while (result.next()) {
+                numCategories++;
                 String category = result.getString("name");
                 String categoryID = result.getString("id");
+                System.out.println(category);
+                System.out.println(categoryID);
                 categorySelect += "<option value='" + categoryID + "'>" + category + "</option>";
             }
+            if(numCategories == 0) response.sendRedirect("no-categories.html");
         } catch (SQLException ex) {
             while (ex != null) {
                 System.out.println("Message: " + ex.getMessage());
@@ -80,7 +86,8 @@ public class QuestionUploadServlet extends DbConnectionServlet {
         String wrongAnswer3 = request.getParameter("wrong-answer3");
         String fileName = filePart.getSubmittedFileName();
         String filePath = "";
-        if(!fileName.trim().isEmpty()) filePath = System.getProperty("catalina.base") + "/webapps/comp3940-assignment1/media/" + fileName;
+        if (!fileName.trim().isEmpty())
+            filePath = System.getProperty("catalina.base") + "/webapps/comp3940-assignment1/media/" + fileName;
 
         Connection con = null;
         try {
@@ -102,8 +109,10 @@ public class QuestionUploadServlet extends DbConnectionServlet {
             preparedStatement.setString(4, wrongAnswer1);
             preparedStatement.setString(5, wrongAnswer2);
             preparedStatement.setString(6, wrongAnswer3);
-            if(!fileName.trim().isEmpty()) preparedStatement.setString(7, "media/" + fileName);
-            else preparedStatement.setString(7, fileName);
+            if (!fileName.trim().isEmpty())
+                preparedStatement.setString(7, "media/" + fileName);
+            else
+                preparedStatement.setString(7, fileName);
             preparedStatement.executeUpdate();
             preparedStatement.close();
         } catch (SQLException ex) {

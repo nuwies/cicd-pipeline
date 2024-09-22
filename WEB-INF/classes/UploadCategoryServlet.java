@@ -14,7 +14,7 @@ public class UploadCategoryServlet extends DbConnectionServlet {
             response.sendRedirect("login");
             return;
         }
-      
+
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
         out.println("<!DOCTYPE html>"
@@ -38,13 +38,9 @@ public class UploadCategoryServlet extends DbConnectionServlet {
             Class.forName("com.mysql.cj.jdbc.Driver");
             con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
 
-            // Create the content path based on the category name
-            String contentPath = "path/to/" + categoryName + "/content";
-
             PreparedStatement preparedStatement = con
-                    .prepareStatement("INSERT INTO categories (name, content_path) VALUES (?, ?)");
+                    .prepareStatement("INSERT INTO categories (name) VALUES (?)");
             preparedStatement.setString(1, categoryName);
-            preparedStatement.setString(2, contentPath); // Use the constructed content path
             preparedStatement.executeUpdate();
             preparedStatement.close();
         } catch (SQLException ex) {

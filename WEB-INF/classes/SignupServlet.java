@@ -13,7 +13,7 @@ public class SignupServlet extends DbConnectionServlet {
       response.sendRedirect("main");
       return;
     }
-    
+
     response.setContentType("text/html");
     PrintWriter out = response.getWriter();
     out.println("<!DOCTYPE html>"
@@ -61,39 +61,39 @@ public class SignupServlet extends DbConnectionServlet {
     try {
       Class.forName("com.mysql.cj.jdbc.Driver");
       Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-  
+
       PreparedStatement checkUserPs = con.prepareStatement("SELECT COUNT(*) FROM users WHERE username = ?");
       checkUserPs.setString(1, username);
       ResultSet rs = checkUserPs.executeQuery();
-  
-      if (rs.next() && rs.getInt(1) > 0) {
-          out.println("Username already exists. Please choose a different username.");
-          out.println("<a href=\"signup\">Back to sign up</a>");
-      } else {
-          PreparedStatement ps = con.prepareStatement("INSERT INTO users (username, password) VALUES (?, ?)");
-          ps.setString(1, username);
-          ps.setString(2, hashedPassword);
-          int i = ps.executeUpdate();
-          if (i > 0) {
-            HttpSession session = request.getSession(true);
-            session.setAttribute("username", username);
-  
-            // Success message and manually go to main page
-            out.println("You are successfully registered :)");
-            out.println("<a href=\"main\">Go to main page</a>");
 
-            // OR Redirect straight to main after successful sign up
-            // response.sendRedirect("main"); 
-          } else {
-            out.println("Registration failed :(");
-            out.println("<a href=\"signup\">Back to sign up</a>");
-          }
+      if (rs.next() && rs.getInt(1) > 0) {
+        out.println("Username already exists. Please choose a different username.");
+        out.println("<a href=\"signup\">Back to sign up</a>");
+      } else {
+        PreparedStatement ps = con.prepareStatement("INSERT INTO users (username, password) VALUES (?, ?)");
+        ps.setString(1, username);
+        ps.setString(2, hashedPassword);
+        int i = ps.executeUpdate();
+        if (i > 0) {
+          HttpSession session = request.getSession(true);
+          session.setAttribute("username", username);
+
+          // Success message and manually go to main page
+          out.println("You are successfully registered :)");
+          out.println("<a href=\"main\">Go to main page</a>");
+
+          // OR Redirect straight to main after successful sign up
+          // response.sendRedirect("main");
+        } else {
+          out.println("Registration failed :(");
+          out.println("<a href=\"signup\">Back to sign up</a>");
+        }
       }
-  } catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
       out.println("An error occurred: " + e.getMessage());
       out.println("<a href=\"signup\">Back to sign up</a>");
-  }
-  
+    }
+
   }
 }

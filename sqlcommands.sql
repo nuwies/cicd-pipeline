@@ -8,6 +8,16 @@ CREATE TABLE users(
     UNIQUE(username)
 );
 
+-- Categories table
+CREATE TABLE categories (
+    id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255),            
+    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    auto_play BOOLEAN DEFAULT FALSE,
+    PRIMARY KEY(id),
+    UNIQUE(name)
+);
+
 -- Question table
 CREATE TABLE questions(
     id INT NOT NULL AUTO_INCREMENT,
@@ -23,12 +33,3 @@ CREATE TABLE questions(
     FOREIGN KEY(category) REFERENCES categories(id) ON DELETE CASCADE
 );
 
--- Categories table
-CREATE TABLE categories (
-    id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(255),         
-    content_path VARCHAR(255) NOT NULL,     
-    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY(id),
-    UNIQUE(name)
-);

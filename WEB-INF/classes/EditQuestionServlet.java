@@ -13,13 +13,13 @@ public class EditQuestionServlet extends DbConnectionServlet {
             response.setStatus(HttpServletResponse.SC_FOUND);
             response.sendRedirect("login");
             return;
-        } 
-      
+        }
+
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
         StringBuilder questionOptions = new StringBuilder();
         String selectedQuestionId = request.getParameter("question-id");
-        String errorMessage = request.getParameter("error"); //retrieve the error message if there are any
+        String errorMessage = request.getParameter("error"); // retrieve the error message if there are any
         String questionText = "";
         String correctAnswer = "";
         String wrongAnswer1 = "";
@@ -27,22 +27,23 @@ public class EditQuestionServlet extends DbConnectionServlet {
         String wrongAnswer3 = "";
         String contentPath = "";
 
-        //display the error message, if there are any
+        // display the error message, if there are any
         if (errorMessage != null && !errorMessage.isEmpty()) {
             out.println("<p style='color: red;'>" + errorMessage + "</p>");
         }
 
         // connect to the database and retrieve questions for the dropdown
         try (Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-             Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT id, question FROM questions")) {
+                Statement stmt = con.createStatement();
+                ResultSet rs = stmt.executeQuery("SELECT id, question FROM questions")) {
 
             // build the dropdown options for questions
             while (rs.next()) {
                 int id = rs.getInt("id");
                 String question = rs.getString("question");
                 questionOptions.append("<option value='").append(id).append("'")
-                        .append(selectedQuestionId != null && !selectedQuestionId.isEmpty() && id == Integer.parseInt(selectedQuestionId) ? " selected" : "")
+                        .append(selectedQuestionId != null && !selectedQuestionId.isEmpty()
+                                && id == Integer.parseInt(selectedQuestionId) ? " selected" : "")
                         .append(">").append(question).append("</option>");
             }
 
@@ -59,7 +60,8 @@ public class EditQuestionServlet extends DbConnectionServlet {
         // fetch details of the selected question to prepopulate the form fields
         if (selectedQuestionId != null && !selectedQuestionId.isEmpty()) {
             try (Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-                 PreparedStatement ps = con.prepareStatement("SELECT question, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, content_path FROM questions WHERE id = ?")) {
+                    PreparedStatement ps = con.prepareStatement(
+                            "SELECT question, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, content_path FROM questions WHERE id = ?")) {
 
                 ps.setInt(1, Integer.parseInt(selectedQuestionId));
                 try (ResultSet rs = ps.executeQuery()) {
@@ -98,17 +100,23 @@ public class EditQuestionServlet extends DbConnectionServlet {
             out.println("<form method='POST' action='edit-question'>"
                     + "<input type='hidden' name='question-id' value='" + selectedQuestionId + "'>"
                     + "<label for='new-question'>New Question Text:</label>"
-                    + "<input type='text' id='new-question' name='new-question' maxlength='256' value='" + (questionText != null ? questionText : "") + "' required><br>"
+                    + "<input type='text' id='new-question' name='new-question' maxlength='256' value='"
+                    + (questionText != null ? questionText : "") + "' required><br>"
                     + "<label for='new-correct-answer'>New Correct Answer:</label>"
-                    + "<input type='text' id='new-correct-answer' name='new-correct-answer' maxlength='256' value='" + (correctAnswer != null ? correctAnswer : "") + "' required><br>"
+                    + "<input type='text' id='new-correct-answer' name='new-correct-answer' maxlength='256' value='"
+                    + (correctAnswer != null ? correctAnswer : "") + "' required><br>"
                     + "<label for='new-wrong-answer1'>New Wrong Answer 1:</label>"
-                    + "<input type='text' id='new-wrong-answer1' name='new-wrong-answer1' maxlength='256' value='" + (wrongAnswer1 != null ? wrongAnswer1 : "") + "' required><br>"
+                    + "<input type='text' id='new-wrong-answer1' name='new-wrong-answer1' maxlength='256' value='"
+                    + (wrongAnswer1 != null ? wrongAnswer1 : "") + "' required><br>"
                     + "<label for='new-wrong-answer2'>New Wrong Answer 2 (Optional):</label>"
-                    + "<input type='text' id='new-wrong-answer2' name='new-wrong-answer2' maxlength='256' value='" + (wrongAnswer2 != null ? wrongAnswer2 : "") + "'><br>"
+                    + "<input type='text' id='new-wrong-answer2' name='new-wrong-answer2' maxlength='256' value='"
+                    + (wrongAnswer2 != null ? wrongAnswer2 : "") + "'><br>"
                     + "<label for='new-wrong-answer3'>New Wrong Answer 3 (Optional):</label>"
-                    + "<input type='text' id='new-wrong-answer3' name='new-wrong-answer3' maxlength='256' value='" + (wrongAnswer3 != null ? wrongAnswer3 : "") + "'><br>"
+                    + "<input type='text' id='new-wrong-answer3' name='new-wrong-answer3' maxlength='256' value='"
+                    + (wrongAnswer3 != null ? wrongAnswer3 : "") + "'><br>"
                     + "<label for='new-content-path'>New Content Path (Optional):</label>"
-                    + "<input type='text' id='new-content-path' name='new-content-path' maxlength='256' value='" + (contentPath != null ? contentPath : "") + "'><br>"
+                    + "<input type='text' id='new-content-path' name='new-content-path' maxlength='256' value='"
+                    + (contentPath != null ? contentPath : "") + "'><br>"
                     + "<input type='submit' value='Update Question'><br><br><br>"
                     + "<input type='submit' formaction='delete-question' value='Delete Question'>"
                     + "</form>");
@@ -116,7 +124,6 @@ public class EditQuestionServlet extends DbConnectionServlet {
 
         out.println("</body></html>");
     }
-
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -143,15 +150,15 @@ public class EditQuestionServlet extends DbConnectionServlet {
 
         // connect to the database to update the question
         try (Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-             PreparedStatement ps = con.prepareStatement(
-                     "UPDATE questions SET "
-                             + "question = ?, "
-                             + "correct_answer = ?, "
-                             + "wrong_answer_1 = ?, "
-                             + "wrong_answer_2 = ?, "
-                             + "wrong_answer_3 = ?, "
-                             + "content_path = ? "
-                             + "WHERE id = ?")) {
+                PreparedStatement ps = con.prepareStatement(
+                        "UPDATE questions SET "
+                                + "question = ?, "
+                                + "correct_answer = ?, "
+                                + "wrong_answer_1 = ?, "
+                                + "wrong_answer_2 = ?, "
+                                + "wrong_answer_3 = ?, "
+                                + "content_path = ? "
+                                + "WHERE id = ?")) {
 
             // set parameters for the update query
             ps.setString(1, newQuestion);
@@ -159,10 +166,10 @@ public class EditQuestionServlet extends DbConnectionServlet {
             ps.setString(3, newWrongAnswer1);
             ps.setString(4, newWrongAnswer2); // Will be empty string if left blank
             ps.setString(5, newWrongAnswer3); // Will be empty string if left blank
-            ps.setString(6, newContentPath);   // Will be empty string if left blank
+            ps.setString(6, newContentPath); // Will be empty string if left blank
             ps.setInt(7, Integer.parseInt(questionId));
 
-            //execute the update
+            // execute the update
             int rowsUpdated = ps.executeUpdate();
             if (rowsUpdated > 0) {
                 response.sendRedirect("edit-success.html");
@@ -175,6 +182,5 @@ public class EditQuestionServlet extends DbConnectionServlet {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error updating question.");
         }
     }
-
 
 }

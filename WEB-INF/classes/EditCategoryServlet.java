@@ -13,8 +13,8 @@ public class EditCategoryServlet extends DbConnectionServlet {
             response.setStatus(HttpServletResponse.SC_FOUND);
             response.sendRedirect("login");
             return;
-        }  
-      
+        }
+
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
         StringBuilder categoryOptions = new StringBuilder();
@@ -24,14 +24,16 @@ public class EditCategoryServlet extends DbConnectionServlet {
 
         // connect to the database and retrieve categories
         try (Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-             Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT id, name FROM categories")) {
+                Statement stmt = con.createStatement();
+                ResultSet rs = stmt.executeQuery("SELECT id, name FROM categories")) {
 
             while (rs.next()) {
                 int id = rs.getInt("id");
                 String name = rs.getString("name");
                 categoryOptions.append("<option value='").append(id).append("'")
-                        .append(selectedCategoryId != null && selectedCategoryId.equals(String.valueOf(id)) ? " selected" : "")
+                        .append(selectedCategoryId != null && selectedCategoryId.equals(String.valueOf(id))
+                                ? " selected"
+                                : "")
                         .append(">").append(name).append("</option>");
             }
 
@@ -44,7 +46,8 @@ public class EditCategoryServlet extends DbConnectionServlet {
         // fetch details of the selected category to prepopulate the form fields
         if (selectedCategoryId != null && !selectedCategoryId.isEmpty()) {
             try (Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-                 PreparedStatement ps = con.prepareStatement("SELECT name, content_path FROM categories WHERE id = ?")) {
+                    PreparedStatement ps = con
+                            .prepareStatement("SELECT name, content_path FROM categories WHERE id = ?")) {
 
                 ps.setInt(1, Integer.parseInt(selectedCategoryId));
                 try (ResultSet rs = ps.executeQuery()) {
@@ -78,9 +81,11 @@ public class EditCategoryServlet extends DbConnectionServlet {
             out.println("<form method='POST' action='edit-category'>"
                     + "<input type='hidden' name='category-id' value='" + selectedCategoryId + "'>"
                     + "<label for='new-category-name'>New Category Name:</label>"
-                    + "<input type='text' id='new-category-name' name='new-category-name' value='" + existingCategoryName + "' required><br>"
+                    + "<input type='text' id='new-category-name' name='new-category-name' value='"
+                    + existingCategoryName + "' required><br>"
                     + "<label for='new-content-path'>New Content Path: (Optional)</label>"
-                    + "<input type='text' id='new-content-path' name='new-content-path' value='" + existingContentPath + "'><br>"
+                    + "<input type='text' id='new-content-path' name='new-content-path' value='" + existingContentPath
+                    + "'><br>"
                     + "<input type='submit' value='Update Category'><br><br><br>"
                     + "<input type='submit' value='Delete Category' formaction='delete-category'>"
                     + "</form>");
@@ -103,17 +108,17 @@ public class EditCategoryServlet extends DbConnectionServlet {
             return;
         }
 
-        //connect to the database to update the category
+        // connect to the database to update the category
         try (Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-             PreparedStatement ps = con.prepareStatement(
-                     "UPDATE categories SET name = ?, content_path = ? WHERE id = ?")) {
+                PreparedStatement ps = con.prepareStatement(
+                        "UPDATE categories SET name = ?, content_path = ? WHERE id = ?")) {
 
-            //set parameters for the update query
+            // set parameters for the update query
             ps.setString(1, newCategoryName); // Always update to new name
             ps.setString(2, newContentPath.isEmpty() ? "" : newContentPath); // Update to empty string if blank
             ps.setInt(3, Integer.parseInt(categoryId));
 
-            //execute the update
+            // execute the update
             int rowsUpdated = ps.executeUpdate();
             if (rowsUpdated > 0) {
                 response.sendRedirect("edit-success.html");

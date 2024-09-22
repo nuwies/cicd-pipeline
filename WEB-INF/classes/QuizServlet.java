@@ -2,26 +2,34 @@
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import java.sql.*;
-import java.util.Properties;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
-// Go to quiz page with category paramter - GET /quiz
-// Redirect to quiz.html with category URL parameter
-// quiz.html after loading page will get question values and update html - POST /quiz?
 public class QuizServlet extends DbConnectionServlet {
+    private String getMediaHTML(String fileName) {
+        String[] imageTypes = {"apng", "png", "avif", "gif", "jpg", "jpeg", "jfif", "pjpeg", "pjp", "png", "svg", "webp"};
+        List <String> list = Arrays.asList(imageTypes);
+        boolean containsImage = false;
+
+        String[] temp = fileName.split("[.]");
+        String fileType = temp[temp.length - 1];
+
+        if(list.contains(fileType)) containsImage = true;
+
+        if(containsImage) return "<img src='" + fileName + "' alt='question-content'>";
+        return "<video controls autoplay><source src='" + fileName + "' type='video/" + fileType + "'></video>";
+    }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {      
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // check if user is logged in
         HttpSession session = request.getSession(false);
         if (session == null) {
-          response.setStatus(HttpServletResponse.SC_FOUND);
-          response.sendRedirect("login");
-          return;
+            response.setStatus(HttpServletResponse.SC_FOUND);
+            response.sendRedirect("login");
+            return;
         }
-      
+
         Connection con;
         ResultSet result;
         session = request.getSession();
@@ -62,8 +70,10 @@ public class QuizServlet extends DbConnectionServlet {
 
             for (int i = 0; i < questionNumber; i++) {
                 boolean rowExists = result.next();
-                if(!rowExists && questionNumber == 1) response.sendRedirect("no-questions.html");
-                else if (!rowExists && questionNumber > 1) response.sendRedirect("end-of-quiz.html");
+                if (!rowExists && questionNumber == 1)
+                    response.sendRedirect("no-questions.html");
+                else if (!rowExists && questionNumber > 1)
+                    response.sendRedirect("end-of-quiz.html");
             }
 
             String questionID = result.getString("id");
@@ -100,6 +110,8 @@ public class QuizServlet extends DbConnectionServlet {
         }
         Collections.shuffle(answers);
 
+        String mediaHTML = getMediaHTML(contentPath);
+
         String answersHTML = "<form action='quiz' method='post'>";
 
         for (String answer : answers) {
@@ -111,17 +123,17 @@ public class QuizServlet extends DbConnectionServlet {
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
         out.println("<!DOCTYPE html>"
-                + "<head><title>Quiz Question</title>"
-                + "<script src='scripts/quiz.js'></script></head>"
+                + "<head><title>Quiz Question</title></head>"
                 + "<body><h1>Category: " + selectedCategory + "</h1><br>"
                 + "<p>" + question + "</p>"
-                + "<iframe src='" + contentPath + "'></iframe><br>"
+                + mediaHTML
                 + answersHTML
                 + "</body></html>");
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         HttpSession session = request.getSession();
         System.out.println(session.getAttribute("questionID"));
         String questionID = (String) session.getAttribute("questionID");
@@ -163,8 +175,7 @@ public class QuizServlet extends DbConnectionServlet {
             out.println("<form method='get' action='quiz'><button type='submit'>Try Again</button></form>"
                     + "<script type='text/javascript'>"
                     + "alert('Incorrect!');"
-                    + "</script>"
-                    );
+                    + "</script>");
         }
 
     }

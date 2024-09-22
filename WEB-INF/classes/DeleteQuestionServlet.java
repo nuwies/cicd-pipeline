@@ -23,15 +23,15 @@ public class DeleteQuestionServlet extends DbConnectionServlet {
     }
 
     try (Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-         PreparedStatement ps = con.prepareStatement("DELETE FROM questions WHERE id = ?")) {
+        PreparedStatement ps = con.prepareStatement("DELETE FROM questions WHERE id = ?")) {
 
       ps.setInt(1, Integer.parseInt(questionId));
       int rowsAffected = ps.executeUpdate();
       if (rowsAffected > 0) {
         out.println("<script type='text/javascript'>"
-              + "alert('Question deleted successfully');"
-              + "location='edit-question';"
-              + "</script>");
+            + "alert('Question deleted successfully');"
+            + "location='edit-question';"
+            + "</script>");
       } else {
         out.println("<p>Question not found.</p>");
       }
