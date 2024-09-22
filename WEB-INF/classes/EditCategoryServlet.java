@@ -8,6 +8,13 @@ public class EditCategoryServlet extends DbConnectionServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            response.setStatus(HttpServletResponse.SC_FOUND);
+            response.sendRedirect("login");
+            return;
+        }  
+      
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
         StringBuilder categoryOptions = new StringBuilder();
@@ -57,6 +64,7 @@ public class EditCategoryServlet extends DbConnectionServlet {
         out.println("<!DOCTYPE html>"
                 + "<html><head><title>Edit Category</title></head>"
                 + "<body><h1>Edit Category</h1><br>"
+                + "<a href='main'>Back to Main Page</a><br><br>"
                 + "<form method='GET' action='edit-category'>"
                 + "<label for='category-id'>Select Category:</label>"
                 + "<select id='category-id' name='category-id' required onchange='this.form.submit()'>"
@@ -74,6 +82,7 @@ public class EditCategoryServlet extends DbConnectionServlet {
                     + "<label for='new-content-path'>New Content Path: (Optional)</label>"
                     + "<input type='text' id='new-content-path' name='new-content-path' value='" + existingContentPath + "'><br>"
                     + "<input type='submit' value='Update Category'>"
+                    + "<input type='submit' value='Delete Category' formaction='delete-category'>"
                     + "</form>");
         }
 

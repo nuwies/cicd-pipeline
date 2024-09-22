@@ -8,6 +8,13 @@ public class EditQuestionServlet extends DbConnectionServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            response.setStatus(HttpServletResponse.SC_FOUND);
+            response.sendRedirect("login");
+            return;
+        } 
+      
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
         StringBuilder questionOptions = new StringBuilder();
@@ -77,6 +84,7 @@ public class EditQuestionServlet extends DbConnectionServlet {
                 + "<html><head><title>Edit Question</title></head>"
                 + "<body><h1>Edit Question</h1><br>"
                 + "<body><h2>If you leave optional fields blank, it won't show up when playing the quiz.</h2><br>"
+                + "<a href='main'>Back to Main Page</a><br><br>"
                 + "<form method='GET' action='edit-question'>"
                 + "<label for='question-id'>Select Question:</label>"
                 + "<select id='question-id' name='question-id' required onchange='this.form.submit()'>"
@@ -101,7 +109,8 @@ public class EditQuestionServlet extends DbConnectionServlet {
                     + "<input type='text' id='new-wrong-answer3' name='new-wrong-answer3' maxlength='256' value='" + (wrongAnswer3 != null ? wrongAnswer3 : "") + "'><br>"
                     + "<label for='new-content-path'>New Content Path (Optional):</label>"
                     + "<input type='text' id='new-content-path' name='new-content-path' maxlength='256' value='" + (contentPath != null ? contentPath : "") + "'><br>"
-                    + "<input type='submit' value='Update Question'>"
+                    + "<input type='submit' value='Update Question'><br>"
+                    + "<input type='submit' formaction='delete-question' value='Delete Question'>"
                     + "</form>");
         }
 
