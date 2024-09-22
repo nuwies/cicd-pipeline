@@ -109,7 +109,7 @@ public class EditQuestionServlet extends DbConnectionServlet {
                     + "<input type='text' id='new-wrong-answer3' name='new-wrong-answer3' maxlength='256' value='" + (wrongAnswer3 != null ? wrongAnswer3 : "") + "'><br>"
                     + "<label for='new-content-path'>New Content Path (Optional):</label>"
                     + "<input type='text' id='new-content-path' name='new-content-path' maxlength='256' value='" + (contentPath != null ? contentPath : "") + "'><br>"
-                    + "<input type='submit' value='Update Question'><br>"
+                    + "<input type='submit' value='Update Question'><br><br><br>"
                     + "<input type='submit' formaction='delete-question' value='Delete Question'>"
                     + "</form>");
         }

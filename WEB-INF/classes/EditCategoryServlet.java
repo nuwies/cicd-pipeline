@@ -81,7 +81,7 @@ public class EditCategoryServlet extends DbConnectionServlet {
                     + "<input type='text' id='new-category-name' name='new-category-name' value='" + existingCategoryName + "' required><br>"
                     + "<label for='new-content-path'>New Content Path: (Optional)</label>"
                     + "<input type='text' id='new-content-path' name='new-content-path' value='" + existingContentPath + "'><br>"
-                    + "<input type='submit' value='Update Category'>"
+                    + "<input type='submit' value='Update Category'><br><br><br>"
                     + "<input type='submit' value='Delete Category' formaction='delete-category'>"
                     + "</form>");
         }
