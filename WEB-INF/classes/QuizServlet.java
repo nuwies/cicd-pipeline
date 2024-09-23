@@ -7,8 +7,8 @@ import java.util.*;
 
 public class QuizServlet extends DbConnectionServlet {
   private String getMediaHTML(String fileName) {
-    if (fileName == null || fileName.trim().isEmpty()) {
-      break;
+    if (fileName == null || fileName.trim().isEmpty() || !(new File(fileName).exists())) {
+      return "";
     }
 
     String[] imageTypes = { "apng", "png", "avif", "gif", "jpg", "jpeg", "jfif", "pjpeg", "pjp", "png", "svg", "webp" };
