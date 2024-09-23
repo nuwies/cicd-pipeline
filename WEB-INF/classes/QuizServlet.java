@@ -7,23 +7,22 @@ import java.util.*;
 
 public class QuizServlet extends DbConnectionServlet {
   private String getMediaHTML(String fileName) {
-    if (fileName == null || fileName.trim().isEmpty() || !(new File(fileName).exists())) {
-      return "";
-    }
-
     String[] imageTypes = { "apng", "png", "avif", "gif", "jpg", "jpeg", "jfif", "pjpeg", "pjp", "png", "svg", "webp" };
-    List<String> list = Arrays.asList(imageTypes);
-    boolean containsImage = false;
+    List<String> imagelist = Arrays.asList(imageTypes);
+
+    String[] videoTypes = { "mp4", "webm", "ogg", "mov" };
+    List<String> videoList = Arrays.asList(videoTypes);
 
     String[] temp = fileName.split("[.]");
-    String fileType = temp[temp.length - 1];
+    String fileType = temp[temp.length - 1].toLowerCase();
 
-    if (list.contains(fileType))
-      containsImage = true;
-
-    if (containsImage)
+    if (imagelist.contains(fileType)) {
       return "<img src='" + fileName + "' alt='question-content'>";
-    return "<video controls autoplay><source src='" + fileName + "' type='video/" + fileType + "'></video>";
+    } else if (videoList.contains(fileType)) {
+      return "<video controls autoplay><source src='" + fileName + "' type='video/" + fileType + "'></video>";
+    } 
+
+    return "";
   }
 
   @Override
