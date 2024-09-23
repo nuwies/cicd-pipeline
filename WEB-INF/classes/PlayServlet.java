@@ -1,90 +1,78 @@
-
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
-import java.sql.*;
-import java.io.*;
-import java.util.Properties;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
 
 public class PlayServlet extends DbConnectionServlet {
 
+    @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // check if user is logged in
         HttpSession session = request.getSession(false);
         if (session == null) {
             response.setStatus(HttpServletResponse.SC_FOUND);
             response.sendRedirect("login");
-            return;
-        }
+        } else {
+            session = request.getSession();
+            session.setAttribute("selectedCategory", null);
+            session.setAttribute("questionNumber", null);
+            response.setContentType("text/html");
+            PrintWriter out = response.getWriter();
 
-        Connection con = null;
-        Statement stmt = null;
-        ResultSet rs = null;
-        String errMsg = "";
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Select a Category</title>");
+            out.println("<style>");
+            out.println("body { font-family: Arial, sans-serif; }");
+            out.println(".grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 20px; }");
+            out.println(".grid-item { position: relative; cursor: pointer; }");
+            out.println(".grid-item img { width: 100%; height: auto; border-radius: 8px; }");
+            out.println(".grid-item button { position: absolute; bottom: 10px; left: 10px; right: 10px; padding: 10px; background: rgba(0, 0, 0, 0.7); color: white; border: none; border-radius: 5px; }");
+            out.println("</style>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Select a Category</h1>");
+            out.println("<div class='grid-container'>");
 
-        // reset session values for questions
-        session = request.getSession();
-        session.setAttribute("selectedCategory", null);
-        session.setAttribute("questionNumber", null);
+            try (Connection con = DriverManager.getConnection(this.dbUrl, this.dbUsername, this.dbPassword);
+                 Statement stmt = con.createStatement();
+                 ResultSet rs = stmt.executeQuery("SELECT id, name, image FROM categories")) {
 
-        // setup html response
-        response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
-        out.println("<html>");
-        out.println("<head><title>Select a Category</title></head>");
-        out.println("<body>");
-        out.println("<h1>Select a Category</h1>");
+                while (rs.next()) {
+                    String categoryId = rs.getString("id");
+                    String categoryName = rs.getString("name");
+                    byte[] imageBytes = rs.getBytes("image");
 
-        try {
-            // connect to db, assumes db name is clientserver, username root pw oracle1
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-            Statement stmt2 = con.createStatement();
+                    // Display image as Base64 if it exists, otherwise use a placeholder
+                    String imageSrc = (imageBytes != null)
+                            ? "data:image/jpeg;base64," + java.util.Base64.getEncoder().encodeToString(imageBytes)
+                            : "images/placeholder.jpg";
 
-            // query db to fetch all categories from the 'categories' table
-            String query = "SELECT * FROM categories";
-
-            rs = stmt2.executeQuery(query);
-
-            // dynamically generate a button for each category
-            out.println("<form action='quiz' method='GET'>"); // assuming 'quiz' is the servlet handling quizzes
-            while (rs.next()) {
-                String categoryName = rs.getString("name");
-                String categoryID = rs.getString("id");
-                System.out.println("Category ID: " + categoryID);
-                System.out.println("Category: " + categoryName);
-                out.println("<button type='submit' name='category' value='" + categoryID + "'>" + categoryName
-                        + "</button><br>");
-            }
-            out.println("</form>");
-
-        } catch (SQLException ex) {
-            errMsg = "\n--- SQLException caught ---\n";
-            while (ex != null) {
-                errMsg += "Message: " + ex.getMessage();
-                errMsg += "SQLState: " + ex.getSQLState();
-                errMsg += "ErrorCode: " + ex.getErrorCode();
-                ex = ex.getNextException();
-            }
-            out.println("<p>Error: " + errMsg + "</p>");
-        } catch (ClassNotFoundException e) {
-            out.println("<p>Database driver not found!</p>");
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
+                    out.println("<div class='grid-item'>");
+                    out.println("<form action='quiz' method='GET'>");
+                    out.println("<input type='hidden' name='category' value='" + categoryId + "'>");
+                    out.println("<img src='" + imageSrc + "' alt='" + categoryName + "'>");
+                    out.println("<button type='submit'>" + categoryName + "</button>");
+                    out.println("</form>");
+                    out.println("</div>");
                 }
-                if (stmt != null) {
-                    stmt.close();
-                }
-                if (con != null) {
-                    con.close();
-                }
+
             } catch (SQLException e) {
-                out.println("<p>Error closing database resources.</p>");
+                e.printStackTrace();
+                out.println("<p>Error loading categories: " + e.getMessage() + "</p>");
             }
-        }
 
-        out.println("</body></html>");
-        out.close();
+            out.println("</div>");
+            out.println("</body>");
+            out.println("</html>");
+            out.close();
+        }
     }
 }

@@ -1,9 +1,21 @@
-import jakarta.servlet.http.*;
-import jakarta.servlet.*;
-import java.sql.*;
-import java.io.IOException;
-import java.io.PrintWriter;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+//maximum file size is 16MB right now
+@MultipartConfig(maxFileSize = 16177215)
 public class UploadCategoryServlet extends DbConnectionServlet {
 
     @Override
@@ -18,44 +30,68 @@ public class UploadCategoryServlet extends DbConnectionServlet {
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
         out.println("<!DOCTYPE html>"
+                + "<html>"
                 + "<head><title>Upload Category</title></head>"
                 + "<body><h1>Create A New Category</h1><br>"
-                + "<form method='POST' action='upload-category'>"
+                + "<form method='POST' action='upload-category' enctype='multipart/form-data'>"
                 + "<label for='category-name'>Category Name:</label>"
-                + "<input type='text' id='category-name' name='category-name' required><br>"
+                + "<input type='text' id='category-name' name='category-name' required><br><br>"
+                + "<label for='category-image'>Upload Image:</label>"
+                + "<input type='file' id='category-image' name='category-image' accept='image/*' required><br><br>"
                 + "<input type='submit' value='Submit'>"
                 + "</form>"
-                + "</body></html>");
+                + "</body>"
+                + "</html>");
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         String categoryName = request.getParameter("category-name");
 
-        Connection con = null;
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
 
-            PreparedStatement preparedStatement = con
-                    .prepareStatement("INSERT INTO categories (name) VALUES (?)");
-            preparedStatement.setString(1, categoryName);
-            preparedStatement.executeUpdate();
-            preparedStatement.close();
-        } catch (SQLException ex) {
-            while (ex != null) {
-                System.out.println("Uploading error!");
-                System.out.println("Message: " + ex.getMessage());
-                System.out.println("SQLState: " + ex.getSQLState());
-                System.out.println("ErrorCode: " + ex.getErrorCode());
-                ex = ex.getNextException();
-                System.out.println("");
+        Part filePart = request.getPart("category-image");
+
+        if (filePart != null && filePart.getSize() > 0) {
+            try (InputStream imageStream = filePart.getInputStream()) {
+
+                try (Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
+                     PreparedStatement preparedStatement = con.prepareStatement(
+                             "INSERT INTO categories (name, image) VALUES (?, ?)")) {
+
+
+                    preparedStatement.setString(1, categoryName);
+                    preparedStatement.setBlob(2, imageStream);
+
+
+                    int rowsAffected = preparedStatement.executeUpdate();
+
+                    if (rowsAffected > 0) {
+                        response.sendRedirect("upload-success.html");
+                    } else {
+                        response.sendRedirect("upload-fail.html");
+                    }
+                } catch (SQLException ex) {
+                    handleSQLException(ex, response);
+                }
+            } catch (IOException e) {
+                response.getWriter().println("Error reading the image file: " + e.getMessage());
             }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } else {
+            response.getWriter().println("Invalid form data or image not selected.");
         }
+    }
 
-        response.sendRedirect("upload-success.html");
+
+    private void handleSQLException(SQLException ex, HttpServletResponse response) throws IOException {
+        StringBuilder errorMessage = new StringBuilder("Error uploading category:<br>");
+        while (ex != null) {
+            errorMessage.append("Message: ").append(ex.getMessage()).append("<br>")
+                    .append("SQLState: ").append(ex.getSQLState()).append("<br>")
+                    .append("ErrorCode: ").append(ex.getErrorCode()).append("<br>");
+            ex = ex.getNextException();
+        }
+        response.getWriter().println(errorMessage.toString());
     }
 }
