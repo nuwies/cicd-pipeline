@@ -121,7 +121,7 @@ public class QuizServlet extends DbConnectionServlet {
     String answersHTML = "<form action='quiz' method='post'>";
 
     for (String answer : answers) {
-      answersHTML += "<input type='radio' name='answer' value='" + answer + "'/>" + answer + "<br>";
+      answersHTML += "<input type='radio' name='answer' value='" + answer + "' required/>" + answer + "<br>";
     }
 
     answersHTML += "<button type='submit'>Submit</form>";
