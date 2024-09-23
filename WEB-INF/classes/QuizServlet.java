@@ -7,7 +7,7 @@ import java.util.*;
 
 public class QuizServlet extends DbConnectionServlet {
   private String getMediaHTML(String fileName) {
-    String[] imageTypes = { "apng", "png", "avif", "gif", "jpg", "jpeg", "jfif", "pjpeg", "pjp", "png", "svg", "webp" };
+    String[] imageTypes = { "apng", "png", "avif", "gif", "jpg", "jpeg", "jfif", "pjpeg", "pjp", "svg", "webp" };
     List<String> imagelist = Arrays.asList(imageTypes);
 
     String[] videoTypes = { "mp4", "webm", "ogg", "mov" };
@@ -16,13 +16,24 @@ public class QuizServlet extends DbConnectionServlet {
     String[] temp = fileName.split("[.]");
     String fileType = temp[temp.length - 1].toLowerCase();
 
-    if (imagelist.contains(fileType)) {
-      return "<img src='" + fileName + "' alt='question-content'>";
-    } else if (videoList.contains(fileType)) {
-      return "<video controls autoplay><source src='" + fileName + "' type='video/" + fileType + "'></video>";
-    } 
+    String mediaHTML = "";
+    // fixed media container size
+    if (imagelist.contains(fileType) || videoList.contains(fileType)) {
+      mediaHTML = "<div style='width: 400px; height: 300px; overflow: hidden; position: relative;'>";
+      if (imagelist.contains(fileType)) {
+        mediaHTML += "<img src='" + fileName + "' alt='question-content' "
+            + "style='width: 100%; height: 100%; object-fit: cover; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);'>";
+      } else if (videoList.contains(fileType)) {
+        if (fileType.equals("mov"))
+          fileType = "mp4";
+        mediaHTML += "<video controls autoplay loop "
+            + "style='width: 100%; height: 100%; object-fit: cover; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);'>"
+            + "<source src='" + fileName + "' type='video/" + fileType + "'></video>";
+      }
+      mediaHTML += "</div>";
+    }
 
-    return "";
+    return mediaHTML;
   }
 
   @Override
