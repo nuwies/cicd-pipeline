@@ -3,14 +3,15 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.Part;
+import org.json.*;
 
 import java.sql.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.*;
+import netscape.javascript.JSException;
 
 @MultipartConfig
-public class QuestionUploadServlet extends DbConnectionServlet {
+public class UploadQuestionServlet extends DbConnectionServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -25,8 +26,8 @@ public class QuestionUploadServlet extends DbConnectionServlet {
         String userType = null;
 
         try (Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-             PreparedStatement ps = con
-                     .prepareStatement("SELECT user_type FROM users WHERE username = ?")) {
+                PreparedStatement ps = con
+                        .prepareStatement("SELECT user_type FROM users WHERE username = ?")) {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -44,8 +45,11 @@ public class QuestionUploadServlet extends DbConnectionServlet {
 
         Connection con = null;
         ResultSet result = null;
-        String categorySelect = "";
         int numCategories = 0;
+
+        // JSON 
+        JSONObject responseJSON = new JSONObject();
+        JSONArray categoriesJSON = new JSONArray();
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -62,12 +66,16 @@ public class QuestionUploadServlet extends DbConnectionServlet {
                 numCategories++;
                 String category = result.getString("name");
                 String categoryID = result.getString("id");
-                System.out.println(category);
-                System.out.println(categoryID);
-                categorySelect += "<option value='" + categoryID + "'>" + category + "</option>";
+
+                // Put each category into the JSON array
+                JSONObject currCategory = new JSONObject();
+                currCategory.put("id", categoryID);
+                currCategory.put("category", category);
+                categoriesJSON.put(currCategory);
             }
-            if (numCategories == 0)
+            if (numCategories == 0) {
                 response.sendRedirect("no-categories.html");
+            }
         } catch (SQLException ex) {
             while (ex != null) {
                 System.out.println("Message: " + ex.getMessage());
@@ -77,30 +85,16 @@ public class QuestionUploadServlet extends DbConnectionServlet {
                 System.out.println("");
             }
         }
-
-        response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
-        out.println("<!DOCTYPE html>"
-                + "<head><title>Create A Quiz Question</title></head>"
-                + "<body><h1>Create A Quiz Question</h1><br>"
-                + "<a href='main'>Back to Main Page</a><br><br>"
-                + "<form method='POST' action='upload-question' enctype='multipart/form-data'>"
-                + "<label for='category'>Category</label><select id='category' name='category' required>"
-                + categorySelect + "</select><br>"
-                + "<label for='question'>Question:</label><input type='text' id='question' name='question' maxlength='256' required><br>"
-                + "<label for='correct-answer'>Correct Answer:</label><input type='text' id='correct-answer' name='correct-answer' maxlength='256' required><br>"
-                + "<label for='wrong-answer1'>Wrong Answer 1:</label><input type='text' id='wrong-answer1' name='wrong-answer1' maxlength='256' required><br>"
-                + "<label for='wrong-answer2'>Wrong Answer 2 (Optional):</label><input type='text' id='wrong-answer2' name='wrong-answer2' maxlength='256'><br>"
-                + "<label for='wrong-answer3'>Wrong Answer 3 (Optional):</label><input type='text' id='wrong-answer3' name='wrong-answer3' maxlength='256'><br>"
-                + "<input type='File' id='file' name='filename'><br>"
-                + "<input type='submit' value='Submit'>"
-                + "</form>"
-                + "</body></html>");
+        // Return a JSON response
+        responseJSON.put("categories", categoriesJSON);
+        response.setContentType("application/json");
+        response.getWriter().println(responseJSON);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         Part filePart = request.getPart("filename");
         String categoryID = request.getParameter("category");
         String question = request.getParameter("question");
@@ -110,8 +104,9 @@ public class QuestionUploadServlet extends DbConnectionServlet {
         String wrongAnswer3 = request.getParameter("wrong-answer3");
         String fileName = filePart.getSubmittedFileName();
         String filePath = "";
-        if (!fileName.trim().isEmpty())
+        if (!fileName.trim().isEmpty()) {
             filePath = System.getProperty("catalina.base") + "/webapps/comp3940-assignment1/media/" + fileName;
+        }
 
         Connection con = null;
         try {
