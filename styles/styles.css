@@ -3,6 +3,7 @@
   --text-color: #222222;
   --shadow-color: #f2eed7;
   --button-color: #626f47;
+  --button-hover-color: #4f5f2f;
   --button-text-color: #ffffff;
   --form-background-color: --button-text-color;
 }
