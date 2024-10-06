@@ -1,5 +1,6 @@
 import jakarta.servlet.http.*;
 import jakarta.servlet.*;
+
 import java.io.*;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -27,43 +28,43 @@ modifying existing ones, and also making sure that existing method params are no
  */
 public class LogoutServlet extends HttpServlet {
 
-  @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response)
-          throws ServletException, IOException {
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-    // Invalidate session if it exists and is valid
-    invalidateSession(request);
+        // Invalidate session if it exists and is valid
+        invalidateSession(request);
 
-    // Prepare JSON response using a lambda
-    String jsonResponse = createJsonResponse(() -> true);  // Passing lambda here
+        // Prepare JSON response using a lambda
+        String jsonResponse = createJsonResponse(() -> true);  // Passing lambda here
 
-    // Set response properties and send response
-    sendJsonResponse(response, jsonResponse);
-  }
-
-  // Method to invalidate the session if it exists and is valid
-  private void invalidateSession(HttpServletRequest request) {
-    HttpSession session = request.getSession(false);
-    if (session != null && request.isRequestedSessionIdValid()) {
-      session.invalidate();
+        // Set response properties and send response
+        sendJsonResponse(response, jsonResponse);
     }
-  }
 
-  // Method to create a JSON response, now accepting a lambda (Supplier)
-  private String createJsonResponse(Supplier<Boolean> successSupplier) {
-    return Stream.of("{\"success\": ", successSupplier.get(), "}")
-            .map(obj -> obj.toString())  // Explicit lambda to convert objects to strings
-            .collect(Collectors.joining());
-  }
-
-  // Method to send JSON response
-  private void sendJsonResponse(HttpServletResponse response, String jsonResponse) throws IOException {
-    response.setContentType("application/json");
-    response.setCharacterEncoding("UTF-8");
-
-    try (PrintWriter out = response.getWriter()) {
-      out.println(jsonResponse);
-      out.flush();
+    // Method to invalidate the session if it exists and is valid
+    private void invalidateSession(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null && request.isRequestedSessionIdValid()) {
+            session.invalidate();
+        }
     }
-  }
+
+    // Method to create a JSON response, now accepting a lambda (Supplier)
+    private String createJsonResponse(Supplier<Boolean> successSupplier) {
+        return Stream.of("{\"success\": ", successSupplier.get(), "}")
+                .map(obj -> obj.toString())  // Explicit lambda to convert objects to strings
+                .collect(Collectors.joining());
+    }
+
+    // Method to send JSON response
+    private void sendJsonResponse(HttpServletResponse response, String jsonResponse) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        try (PrintWriter out = response.getWriter()) {
+            out.println(jsonResponse);
+            out.flush();
+        }
+    }
 }
