@@ -23,7 +23,10 @@ public class EditCategoryServlet extends DbConnectionServlet {
     String categoryID = request.getParameter("category-id");
     String newCategoryName = request.getParameter("category");
     String currentFilePath = request.getParameter("current-image-path");
-    String newFileName = newFilePart != null ? uuidString + newFilePart.getSubmittedFileName() : "";
+    String newFileName = "";
+    if(!newFilePart.getSubmittedFileName().trim().isEmpty()) {
+      newFileName = uuidString + newFilePart.getSubmittedFileName();
+    }
     String newFilePath = "";
 
     try {

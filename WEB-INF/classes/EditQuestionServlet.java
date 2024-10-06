@@ -20,6 +20,8 @@ public class EditQuestionServlet extends DbConnectionServlet {
     String uuidString = uuid.toString();
 
     Part newFilePart = request.getPart("filename");
+    System.out.println("newFilePart: " + newFilePart);
+    System.out.println("newFIlePart File Name: " + newFilePart.getSubmittedFileName());
     String newCategoryID = request.getParameter("category");
     String questionID = request.getParameter("question-id");
     String newQuestion = request.getParameter("question");
@@ -28,7 +30,10 @@ public class EditQuestionServlet extends DbConnectionServlet {
     String newWrongAnswer2 = request.getParameter("wrong-answer2");
     String newWrongAnswer3 = request.getParameter("wrong-answer3");
     String currentFilePath = request.getParameter("current-image-path");
-    String newFileName = newFilePart != null ? uuidString + newFilePart.getSubmittedFileName() : "";
+    String newFileName = "";
+    if(!newFilePart.getSubmittedFileName().trim().isEmpty()) {
+      newFileName = uuidString + newFilePart.getSubmittedFileName();
+    }
     String newFilePath = "";
 
     try {
