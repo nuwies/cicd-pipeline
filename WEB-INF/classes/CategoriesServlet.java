@@ -1,68 +1,48 @@
 
 import jakarta.servlet.http.*;
 import jakarta.servlet.*;
-import java.sql.*;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import org.json.*;
 
 public class CategoriesServlet extends DbConnectionServlet {
-    
-    // Get all categories in JSON
-    @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        
-        response.setContentType("application/json");
-        JSONObject responseJSON = new JSONObject();
 
-        Connection con = null;
-        ResultSet result = null;
-        int numCategories = 0;
+  // Get all categories in JSON
+  @Override
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        JSONArray categoriesJSON = new JSONArray();
+    response.setContentType("application/json");
+    JSONObject responseJSON = new JSONObject();
+    JSONArray categoriesJSON = new JSONArray();
 
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (Exception ex) {
-            System.out.println("Message: " + ex.getMessage());
-            responseJSON.put("status", "FAILED");
-            response.getWriter().println(responseJSON);
-            return;
+    try {
+      List<Map<String, Object>> results = repository.select("SELECT * FROM categories");
+
+      if (results.isEmpty()) {
+        responseJSON.put("status", "No categories!");
+
+      } else {
+        for (Map<String, Object> row : results) {
+          
+          // Put each category into the JSON array
+          JSONObject currCategory = new JSONObject();
+          currCategory.put("id", row.get("id"));
+          currCategory.put("name", row.get("name"));
+          currCategory.put("content_path", row.get("content_path"));
+          categoriesJSON.put(currCategory);
         }
-
-        try {
-            con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-            Statement stmt = con.createStatement();
-            result = stmt.executeQuery("SELECT * FROM categories");
-            while (result.next()) {
-                numCategories++;
-                String category = result.getString("name");
-                String categoryID = result.getString("id");
-                String categoryMedia = result.getString("content_path");
-
-                // Put each category into the JSON array
-                JSONObject currCategory = new JSONObject();
-                currCategory.put("id", categoryID);
-                currCategory.put("name", category);
-                currCategory.put("content_path", categoryMedia);
-                categoriesJSON.put(currCategory);
-            }
-            if (numCategories == 0) {
-                responseJSON.put("status", "No cateogories!");
-                response.getWriter().println(responseJSON);
-                return;
-            }
-        } catch (SQLException ex) {
-            while (ex != null) {
-                System.out.println("Message: " + ex.getMessage());
-                System.out.println("SQLState: " + ex.getSQLState());
-                System.out.println("ErrorCode: " + ex.getErrorCode());
-                ex = ex.getNextException();
-                System.out.println("");
-            }
-        }
-        // Return a JSON response
         responseJSON.put("status", "SUCCESS");
         responseJSON.put("categories", categoriesJSON);
-        response.getWriter().println(responseJSON);
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      responseJSON.put("status", "FAILED");
+      responseJSON.put("message", "Database error: " + e.getMessage());
     }
+
+    // Return a JSON response
+    response.getWriter().println(responseJSON);
+  }
 }

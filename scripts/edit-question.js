@@ -40,11 +40,22 @@ function get_categories(callback) {
 
         var category_select = document.getElementById("category");
 
+        // Reset categories list
+        category_select.innerHTML = "";
+
+        // Store existing category IDs to prevent duplicates
+        const existingCategoryIDs = new Set();
+
         for (let i = 0; i < categoriesJSON.categories.length; i++) {
-            var opt = document.createElement("option");
-            opt.value = categoriesJSON.categories[i].id;
-            opt.innerHTML = categoriesJSON.categories[i].name;
-            category_select.appendChild(opt);
+            const categoryID = categoriesJSON.categories[i].id;
+            // Only add if not already added
+            if (!existingCategoryIDs.has(categoryID)) {
+                var opt = document.createElement("option");
+                opt.value = categoryID;
+                opt.innerHTML = categoriesJSON.categories[i].name;
+                category_select.appendChild(opt);
+                existingCategoryIDs.add(categoryID);
+            }
         }
 
         if(callback) {

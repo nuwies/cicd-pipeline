@@ -1,131 +1,100 @@
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.MultipartConfig;
-import java.sql.*;
 import java.util.UUID;
+import java.util.List;
+import java.util.Map;
 import java.io.IOException;
+import java.io.InputStream;
+
 import org.json.*;
 
 @MultipartConfig
 public class QuestionServlet extends DbConnectionServlet {
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
 
-        response.setContentType("application/json");
-        JSONObject responseJSON = new JSONObject();      
+  @Override
+  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
 
-        String questionID = request.getParameter("question");
+    response.setContentType("application/json");
+    JSONObject responseJSON = new JSONObject();
 
-        Connection con = null;
-        ResultSet result;
+    String questionID = request.getParameter("question");
 
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (Exception ex) {
-            System.out.println("Message: " + ex.getMessage());
-            responseJSON.put("status", "FAILED");
-            response.getWriter().println(responseJSON);
-            return;
-        }
+    if (questionID == null || questionID.isEmpty()) {
+      responseJSON.put("status", "FAILED");
+      responseJSON.put("message", "Missing or invalid question ID");
+      response.getWriter().println(responseJSON);
+      return;
+    }
 
-        try {
-            con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-            Statement stmt = con.createStatement();
-            result = stmt.executeQuery("SELECT * FROM questions WHERE id = " + questionID);
-            result.next();
+    try {
+      List<Map<String, Object>> result = repository.select("SELECT * FROM questions WHERE id = ?",
+          Integer.parseInt(questionID));
 
-            responseJSON.put("id", result.getString("id"));
-            responseJSON.put("category", result.getString("category"));
-            responseJSON.put("question", result.getString("question"));
-            responseJSON.put("content_path", result.getString("content_path"));
-            responseJSON.put("correct_answer", result.getString("correct_answer"));
-            responseJSON.put("wrong_answer_1", result.getString("wrong_answer_1"));
-            responseJSON.put("wrong_answer_2", result.getString("wrong_answer_2"));
-            responseJSON.put("wrong_answer_3", result.getString("wrong_answer_3"));
-
-        } catch (SQLException ex) {
-            while (ex != null) {
-                System.out.println("Message: " + ex.getMessage());
-                System.out.println("SQLState: " + ex.getSQLState());
-                System.out.println("ErrorCode: " + ex.getErrorCode());
-                ex = ex.getNextException();
-                System.out.println("");
-            }
-            responseJSON.put("status", "FAILED");
-            response.getWriter().println(responseJSON);
-            return;
-        }
-
+      if (result.isEmpty()) {
+        responseJSON.put("status", "FAILED");
+        responseJSON.put("message", "Question not found");
+      } else {
+        Map<String, Object> questionData = result.get(0);
+        responseJSON.put("id", questionData.get("id"));
+        responseJSON.put("category", questionData.get("category"));
+        responseJSON.put("question", questionData.get("question"));
+        responseJSON.put("content_path", questionData.get("content_path"));
+        responseJSON.put("correct_answer", questionData.get("correct_answer"));
+        responseJSON.put("wrong_answer_1", questionData.get("wrong_answer_1"));
+        responseJSON.put("wrong_answer_2", questionData.get("wrong_answer_2"));
+        responseJSON.put("wrong_answer_3", questionData.get("wrong_answer_3"));
         responseJSON.put("status", "SUCCESS");
-        response.getWriter().println(responseJSON);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      responseJSON.put("status", "FAILED");
+      responseJSON.put("message", "Database error: " + e.getMessage());
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    response.getWriter().println(responseJSON);
+  }
 
-        UUID uuid = UUID.randomUUID();
-        String uuidString = uuid.toString();
+  @Override
+  protected void doPost(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
 
-        Part filePart = request.getPart("filename");
-        String categoryID = request.getParameter("category");
-        String question = request.getParameter("question");
-        String correctAnswer = request.getParameter("correct-answer");
-        String wrongAnswer1 = request.getParameter("wrong-answer1");
-        String wrongAnswer2 = request.getParameter("wrong-answer2");
-        String wrongAnswer3 = request.getParameter("wrong-answer3");
-        String fileName = filePart.getSubmittedFileName();
-        String filePath = "";
-        if (!fileName.trim().isEmpty()) {
-            fileName = uuidString + fileName;
-            filePath = System.getProperty("catalina.base") + "/webapps/comp3940-assignment1/media/" + fileName;
-        }
+    UUID uuid = UUID.randomUUID();
+    String uuidString = uuid.toString();
 
-        Connection con = null;
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (Exception ex) {
-            System.out.println("Message: " + ex.getMessage());
-            return;
-        }
-
-        try {
-            con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-            PreparedStatement preparedStatement = con
-                    .prepareStatement(
-                            "INSERT INTO questions (category, question, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, content_path) VALUES (?,?,?,?,?,?,?)");
-
-            preparedStatement.setInt(1, Integer.valueOf(categoryID));
-            preparedStatement.setString(2, question);
-            preparedStatement.setString(3, correctAnswer);
-            preparedStatement.setString(4, wrongAnswer1);
-            preparedStatement.setString(5, wrongAnswer2);
-            preparedStatement.setString(6, wrongAnswer3);
-            if (!fileName.trim().isEmpty())
-                preparedStatement.setString(7, "media/" + fileName);
-            else
-                preparedStatement.setString(7, fileName);
-            preparedStatement.executeUpdate();
-            preparedStatement.close();
-        } catch (SQLException ex) {
-            while (ex != null) {
-                System.out.println("Uploading question error!");
-                System.out.println("Message: " + ex.getMessage());
-                System.out.println("SQLState: " + ex.getSQLState());
-                System.out.println("ErrorCode: " + ex.getErrorCode());
-                ex = ex.getNextException();
-                System.out.println("");
-            }
-        }
-
-        // Save file in server images directory
-        try {
-            filePart.write(filePath);
-        } catch (Exception e) {
-            System.out.println("No file was selected!");
-        }
-
-        response.sendRedirect("upload-success.html");
+    Part filePart = request.getPart("filename");
+    String categoryID = request.getParameter("category");
+    String question = request.getParameter("question");
+    String correctAnswer = request.getParameter("correct-answer");
+    String wrongAnswer1 = request.getParameter("wrong-answer1");
+    String wrongAnswer2 = request.getParameter("wrong-answer2");
+    String wrongAnswer3 = request.getParameter("wrong-answer3");
+    String fileName = filePart.getSubmittedFileName();
+    String filePath = "";
+    if (!fileName.trim().isEmpty()) {
+      fileName = uuidString + fileName;
+      filePath = System.getProperty("catalina.base") + "/webapps/comp3940-assignment1/media/" + fileName;
     }
+
+    try {
+      repository.update(
+          "INSERT INTO questions (category, question, correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3, content_path) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          Integer.valueOf(categoryID), question, correctAnswer, wrongAnswer1, wrongAnswer2, wrongAnswer3,
+          fileName.isEmpty() ? "" : "media/" + fileName);
+
+      if (!filePath.isEmpty()) {
+        try (InputStream fileContent = filePart.getInputStream()) {
+          filePart.write(filePath);
+        } catch (IOException e) {
+          System.out.println("File upload failed: " + e.getMessage());
+        }
+      }
+
+      response.sendRedirect("upload-success.html");
+    } catch (Exception e) {
+      e.printStackTrace();
+      response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error uploading question.");
+    }
+  }
 }
