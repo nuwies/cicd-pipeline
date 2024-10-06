@@ -9,11 +9,9 @@ import jakarta.servlet.http.Part;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 //maximum file size is 16MB right now
 @MultipartConfig(maxFileSize = 16177215)
@@ -31,17 +29,10 @@ public class UploadCategoryServlet extends DbConnectionServlet {
         String username = (String) session.getAttribute("username");
         String userType = null;
 
-        try (Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-             PreparedStatement ps = con
-                     .prepareStatement("SELECT user_type FROM users WHERE username = ?")) {
-            ps.setString(1, username);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    userType = rs.getString("user_type");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        try {
+          userType = repository.getUserType(username);
+        } catch (Exception e) {
+          e.printStackTrace();
         }
 
         if (!"admin".equalsIgnoreCase(userType)) {
@@ -82,42 +73,22 @@ public class UploadCategoryServlet extends DbConnectionServlet {
         Part filePart = request.getPart("category-image");
 
         if (filePart != null && filePart.getSize() > 0) {
-            try (InputStream imageStream = filePart.getInputStream()) {
+          try (InputStream imageStream = filePart.getInputStream()) {
+              String query = "INSERT INTO categories (name, image, auto_play) VALUES (?, ?, ?)";
+              int rowsAffected = repository.insert(query, categoryName, imageStream, autoPlay);
 
-                try (Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-                     PreparedStatement preparedStatement = con.prepareStatement(
-                             "INSERT INTO categories (name, image, auto_play) VALUES (?, ?, ?)")) {
-
-                    preparedStatement.setString(1, categoryName);
-                    preparedStatement.setBlob(2, imageStream);
-                    preparedStatement.setBoolean(3, autoPlay);
-
-                    int rowsAffected = preparedStatement.executeUpdate();
-
-                    if (rowsAffected > 0) {
-                        response.sendRedirect("upload-success.html");
-                    } else {
-                        response.sendRedirect("upload-fail.html");
-                    }
-                } catch (SQLException ex) {
-                    handleSQLException(ex, response);
-                }
-            } catch (IOException e) {
-                response.getWriter().println("Error reading the image file: " + e.getMessage());
-            }
-        } else {
-            response.getWriter().println("Invalid form data or image not selected.");
-        }
-    }
-
-    private void handleSQLException(SQLException ex, HttpServletResponse response) throws IOException {
-        StringBuilder errorMessage = new StringBuilder("Error uploading category:<br>");
-        while (ex != null) {
-            errorMessage.append("Message: ").append(ex.getMessage()).append("<br>")
-                    .append("SQLState: ").append(ex.getSQLState()).append("<br>")
-                    .append("ErrorCode: ").append(ex.getErrorCode()).append("<br>");
-            ex = ex.getNextException();
-        }
-        response.getWriter().println(errorMessage.toString());
-    }
+              if (rowsAffected > 0) {
+                  response.sendRedirect("upload-success.html");
+              } else {
+                  response.sendRedirect("upload-fail.html");
+              }
+          } catch (IOException e) {
+              response.getWriter().println("Error reading the image file: " + e.getMessage());
+          } catch (Exception e) {
+              response.getWriter().println("Error message: " + e.getMessage());
+          }
+      } else {
+          response.getWriter().println("Invalid form data or image not selected.");
+      }
+  }
 }

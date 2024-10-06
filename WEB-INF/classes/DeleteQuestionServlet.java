@@ -1,6 +1,5 @@
 import jakarta.servlet.http.*;
 import jakarta.servlet.*;
-import java.sql.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import org.json.*;
@@ -23,11 +22,10 @@ public class DeleteQuestionServlet extends DbConnectionServlet {
       return;
     }
 
-    try (Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-        PreparedStatement ps = con.prepareStatement("DELETE FROM questions WHERE id = ?")) {
-
-      ps.setInt(1, Integer.parseInt(questionId));
-      int rowsAffected = ps.executeUpdate();
+    try {
+      String query = "DELETE FROM questions WHERE id = ?";
+      int rowsAffected = repository.delete(query, Integer.parseInt(questionId));
+      
       if (rowsAffected > 0) {
         out.println("<script type='text/javascript'>"
             + "alert('Question deleted successfully');"
@@ -37,12 +35,9 @@ public class DeleteQuestionServlet extends DbConnectionServlet {
         out.println("<p>Question not found.</p>");
       }
 
-    } catch (SQLException e) {
+    } catch (Exception e) {
+      out.println("Error message: " + e.getMessage());
       e.printStackTrace();
-      out.println("<p>Error deleting question.</p>");
-    } catch (NumberFormatException e) {
-      e.printStackTrace();
-      out.println("<p>Invalid question ID format.</p>");
     }
   }
 }

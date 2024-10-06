@@ -5,12 +5,8 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.PreparedStatement;
+import java.util.List;
+import java.util.Map;
 
 public class PlayServlet extends DbConnectionServlet {
     @Override
@@ -20,18 +16,17 @@ public class PlayServlet extends DbConnectionServlet {
             response.setStatus(HttpServletResponse.SC_FOUND);
             response.sendRedirect("login");
         } else {
-            session = request.getSession();
             session.setAttribute("selectedCategory", null);
             session.setAttribute("questionNumber", null);
             response.setContentType("text/html");
             PrintWriter out = response.getWriter();
 
-            try (Connection con = DriverManager.getConnection(this.dbUrl, this.dbUsername, this.dbPassword);
-                 Statement stmt = con.createStatement();
-                 ResultSet rs = stmt.executeQuery("SELECT id, name, image FROM categories")) {
+            try {
+                // use repository to fetch categories
+                List<Map<String, Object>> categories = repository.select("SELECT id, name, image FROM categories");
 
                 // check to see if there is category in the first place
-                if (!rs.isBeforeFirst()) {
+                if (categories.isEmpty()) {
                     // if none, redirect
                     response.sendRedirect("main");
                     return;
@@ -53,11 +48,11 @@ public class PlayServlet extends DbConnectionServlet {
                 out.println("<a href='main'>Back to Main Page</a><br><br>");
                 out.println("<div class='grid-container'>");
 
-                // Iterate over the ResultSet if it has categories
-                while (rs.next()) {
-                    String categoryId = rs.getString("id");
-                    String categoryName = rs.getString("name");
-                    byte[] imageBytes = rs.getBytes("image");
+                // Iterate over the list of categories
+                for (Map<String, Object> category : categories) {
+                    Integer categoryId = (Integer) category.get("id");
+                    String categoryName = (String) category.get("name");
+                    byte[] imageBytes = (byte[]) category.get("image");
 
                     // Display image as Base64 if it exists, otherwise use a placeholder
                     String imageSrc = (imageBytes != null)
@@ -77,7 +72,7 @@ public class PlayServlet extends DbConnectionServlet {
                 out.println("</body>");
                 out.println("</html>");
 
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 out.println("<p>Error loading categories: " + e.getMessage() + "</p>");
             } finally {

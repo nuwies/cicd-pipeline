@@ -19,6 +19,12 @@ public class Repository implements IRepository {
 
   private Connection connection;
 
+  private void setParameters(PreparedStatement ps, Object... params) throws SQLException {
+    for (int i = 0; i < params.length; i++) {
+      ps.setObject(i + 1, params[i]);
+    }
+  }
+
   @Override
   public void init(ServletContext context) throws SQLException {
     Properties properties = new Properties();
@@ -92,9 +98,13 @@ public class Repository implements IRepository {
     return results;
   }
 
-  private void setParameters(PreparedStatement ps, Object... params) throws SQLException {
-    for (int i = 0; i < params.length; i++) {
-      ps.setObject(i + 1, params[i]);
+  @Override
+  public String getUserType(String username) throws SQLException {
+    String userType = null;
+    List<Map<String, Object>> results = select("SELECT user_type FROM users WHERE username = ?", username);
+    if (!results.isEmpty()) {
+      userType = (String) results.get(0).get("user_type");
     }
+    return userType;
   }
 }

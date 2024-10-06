@@ -10,4 +10,6 @@ public interface IRepository {
     int update(String query, Object... params) throws SQLException;
     int delete(String query, Object... params) throws SQLException;
     List<Map<String, Object>> select(String query, Object... params) throws SQLException;
+
+    String getUserType(String username) throws SQLException;
 }

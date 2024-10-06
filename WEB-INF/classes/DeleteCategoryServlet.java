@@ -1,6 +1,5 @@
 import jakarta.servlet.http.*;
 import jakarta.servlet.*;
-import java.sql.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -22,11 +21,10 @@ public class DeleteCategoryServlet extends DbConnectionServlet {
       return;
     }
 
-    try (Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-        PreparedStatement ps = con.prepareStatement("DELETE FROM categories WHERE id = ?")) {
-
-      ps.setInt(1, Integer.parseInt(categoryId));
-      int rowsAffected = ps.executeUpdate();
+    try {
+      String query = "DELETE FROM categories WHERE id = ?";
+      int rowsAffected = repository.delete(query, Integer.parseInt(categoryId));
+      
       if (rowsAffected > 0) {
         out.println("<script type='text/javascript'>"
             + "alert('Category deleted successfully');"
@@ -36,13 +34,9 @@ public class DeleteCategoryServlet extends DbConnectionServlet {
         out.println("<p>Category not found.</p>");
       }
 
-    } catch (SQLException e) {
+    } catch (Exception e) {
+      out.println("Error message: " + e.getMessage());
       e.printStackTrace();
-      out.println("<p>Error deleting category.</p>");
-    } catch (NumberFormatException e) {
-      e.printStackTrace();
-      out.println("<p>Invalid category ID format.</p>");
     }
   }
-
 }
