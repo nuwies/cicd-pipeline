@@ -1,81 +1,49 @@
-
-import jakarta.servlet.http.*;
 import jakarta.servlet.*;
+import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.MultipartConfig;
-import jakarta.servlet.http.Part;
+import java.sql.*;
+import java.util.UUID;
+import java.io.IOException;
 import org.json.*;
 
-import java.sql.*;
-import java.io.IOException;
-import java.io.PrintWriter;
-import netscape.javascript.JSException;
-
 @MultipartConfig
-public class UploadQuestionServlet extends DbConnectionServlet {
-
+public class QuestionServlet extends DbConnectionServlet {
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
-        if (session == null) {
-            response.setStatus(HttpServletResponse.SC_FOUND);
-            response.sendRedirect("login");
-            return;
-        }
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-        String username = (String) session.getAttribute("username");
-        String userType = null;
+        response.setContentType("application/json");
+        JSONObject responseJSON = new JSONObject();      
 
-        try (Connection con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-                PreparedStatement ps = con
-                        .prepareStatement("SELECT user_type FROM users WHERE username = ?")) {
-            ps.setString(1, username);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    userType = rs.getString("user_type");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        if (!"admin".equalsIgnoreCase(userType)) {
-            response.sendRedirect("main");
-            return;
-        }
+        String questionID = request.getParameter("question");
 
         Connection con = null;
-        ResultSet result = null;
-        int numCategories = 0;
-
-        // JSON 
-        JSONObject responseJSON = new JSONObject();
-        JSONArray categoriesJSON = new JSONArray();
+        ResultSet result;
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (Exception ex) {
             System.out.println("Message: " + ex.getMessage());
+            responseJSON.put("status", "FAILED");
+            response.getWriter().println(responseJSON);
             return;
         }
 
         try {
             con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
             Statement stmt = con.createStatement();
-            result = stmt.executeQuery("SELECT * FROM categories");
-            while (result.next()) {
-                numCategories++;
-                String category = result.getString("name");
-                String categoryID = result.getString("id");
+            result = stmt.executeQuery("SELECT * FROM questions WHERE id = " + questionID);
+            result.next();
 
-                // Put each category into the JSON array
-                JSONObject currCategory = new JSONObject();
-                currCategory.put("id", categoryID);
-                currCategory.put("category", category);
-                categoriesJSON.put(currCategory);
-            }
-            if (numCategories == 0) {
-                response.sendRedirect("no-categories.html");
-            }
+            responseJSON.put("id", result.getString("id"));
+            responseJSON.put("category", result.getString("category"));
+            responseJSON.put("question", result.getString("question"));
+            responseJSON.put("content_path", result.getString("content_path"));
+            responseJSON.put("correct_answer", result.getString("correct_answer"));
+            responseJSON.put("wrong_answer_1", result.getString("wrong_answer_1"));
+            responseJSON.put("wrong_answer_2", result.getString("wrong_answer_2"));
+            responseJSON.put("wrong_answer_3", result.getString("wrong_answer_3"));
+
         } catch (SQLException ex) {
             while (ex != null) {
                 System.out.println("Message: " + ex.getMessage());
@@ -84,16 +52,21 @@ public class UploadQuestionServlet extends DbConnectionServlet {
                 ex = ex.getNextException();
                 System.out.println("");
             }
+            responseJSON.put("status", "FAILED");
+            response.getWriter().println(responseJSON);
+            return;
         }
-        // Return a JSON response
-        responseJSON.put("categories", categoriesJSON);
-        response.setContentType("application/json");
+
+        responseJSON.put("status", "SUCCESS");
         response.getWriter().println(responseJSON);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        UUID uuid = UUID.randomUUID();
+        String uuidString = uuid.toString();
 
         Part filePart = request.getPart("filename");
         String categoryID = request.getParameter("category");
@@ -105,6 +78,7 @@ public class UploadQuestionServlet extends DbConnectionServlet {
         String fileName = filePart.getSubmittedFileName();
         String filePath = "";
         if (!fileName.trim().isEmpty()) {
+            fileName = uuidString + fileName;
             filePath = System.getProperty("catalina.base") + "/webapps/comp3940-assignment1/media/" + fileName;
         }
 
@@ -136,7 +110,7 @@ public class UploadQuestionServlet extends DbConnectionServlet {
             preparedStatement.close();
         } catch (SQLException ex) {
             while (ex != null) {
-                System.out.println("Uploading error!");
+                System.out.println("Uploading question error!");
                 System.out.println("Message: " + ex.getMessage());
                 System.out.println("SQLState: " + ex.getSQLState());
                 System.out.println("ErrorCode: " + ex.getErrorCode());

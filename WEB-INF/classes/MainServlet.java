@@ -6,7 +6,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Properties;
 
 public class MainServlet extends DbConnectionServlet {
 
@@ -47,21 +46,21 @@ public class MainServlet extends DbConnectionServlet {
         + "<div style=\"text-align: center;\">");
 
     if ("admin".equalsIgnoreCase(userType)) {
-      html.append("<form action=\"upload-category\" method=\"GET\">"
+      html.append("<form action=\"create-category.html\">"
           + "<input type=\"submit\" value=\"UPLOAD CATEGORY\" />"
           + "</form>");
       html.append("<form action=\"create-question.html\" method=\"GET\">"
           + "<input type=\"submit\" value=\"UPLOAD QUESTION\" />"
           + "</form>");
-      html.append("<form action=\"edit-category\" method=\"GET\">"
+      html.append("<form action=\"edit-category.html\" method=\"GET\">"
           + "<input type=\"submit\" value=\"EDIT CATEGORY\" />"
           + "</form>");
-      html.append("<form action=\"edit-question\" method=\"GET\">"
+      html.append("<form action=\"edit-question.html\" method=\"GET\">"
           + "<input type=\"submit\" value=\"EDIT QUESTION\" />"
           + "</form>");
     }
 
-    html.append("<form action=\"play\" method=\"GET\">"
+    html.append("<form action=\"choose-category.html\" method=\"GET\">"
         + "<input type=\"submit\" value=\"PLAY\" />"
         + "</form>"
         + "</div>"
