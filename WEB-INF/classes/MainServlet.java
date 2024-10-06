@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.io.*;
 
+
 public class MainServlet extends DbConnectionServlet {
 
   @Override
@@ -38,21 +39,21 @@ public class MainServlet extends DbConnectionServlet {
         + "<div style=\"text-align: center;\">");
 
     if ("admin".equalsIgnoreCase(userType)) {
-      html.append("<form action=\"upload-category\" method=\"GET\">"
+      html.append("<form action=\"create-category.html\">"
           + "<input type=\"submit\" value=\"UPLOAD CATEGORY\" />"
           + "</form>");
       html.append("<form action=\"create-question.html\" method=\"GET\">"
           + "<input type=\"submit\" value=\"UPLOAD QUESTION\" />"
           + "</form>");
-      html.append("<form action=\"edit-category\" method=\"GET\">"
+      html.append("<form action=\"edit-category.html\" method=\"GET\">"
           + "<input type=\"submit\" value=\"EDIT CATEGORY\" />"
           + "</form>");
-      html.append("<form action=\"edit-question\" method=\"GET\">"
+      html.append("<form action=\"edit-question.html\" method=\"GET\">"
           + "<input type=\"submit\" value=\"EDIT QUESTION\" />"
           + "</form>");
     }
 
-    html.append("<form action=\"play\" method=\"GET\">"
+    html.append("<form action=\"choose-category.html\" method=\"GET\">"
         + "<input type=\"submit\" value=\"PLAY\" />"
         + "</form>"
         + "</div>"
