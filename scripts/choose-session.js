@@ -13,6 +13,7 @@ function check_valid_session() {
       console.log(responseJSON);
       if (!responseJSON.session_valid) {
           alert("Invalid session ID!");
+          document.getElementById("session-id").value = "";
       } else {
         window.location.href = "player-quiz.html?sessionID=" + sessionID;
       }
