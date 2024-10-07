@@ -1,30 +1,30 @@
 <!DOCTYPE html>
-    <head>
-        <title>Quiz Question</title>
-        <link rel="stylesheet" href="styles/question-media.css">
-    </head>
-    <body>
-        <div id="navbar">
-            <button id="home-btn" onclick="window.location.href='main'">Home</button>
-            <button id="logout-button">Logout</button>
-        </div>
-        <br>
-        <div id="question-container">
-          <h1 id="question numbers"></h1>
-          <h2 id="question"></h2>
-          <div id="question-media">
-          </div>
-          <br>
-          <button id="button1" onclick="checkAnswer(this.name, this.value)"></button>
-          <br>
-          <button id="button2" onclick="checkAnswer(this.name, this.value)"></button>
-          <br>
-          <button id="button3" onclick="checkAnswer(this.name, this.value)"></button>
-          <br>
-          <button id="button4" onclick="checkAnswer(this.name, this.value)"></button>
-        </div>
-    </body>
-    <script src="scripts/play-quiz.js"></script>
-    <script src="scripts/logout.js"></script>
-    <script src="scripts/check-login.js"></script>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Question</title>
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/question-media.css">
+</head>
+<body>
+<div id="navbar">
+    <button id="home-btn" class="button-common" onclick="window.location.href='main'">Home</button>
+    <button id="logout-button" class="button-common red-button">Logout</button>
+</div>
+<br>
+<div id="question-container" class="quiz-box">
+    <h1 id="question numbers"></h1>
+    <h2 id="question"></h2>
+    <div id="question-media"></div>
+    <br>
+    <button id="button1" class="button-common" onclick="checkAnswer(this.name, this.value)"></button>
+    <button id="button2" class="button-common" onclick="checkAnswer(this.name, this.value)"></button>
+    <button id="button3" class="button-common" onclick="checkAnswer(this.name, this.value)"></button>
+    <button id="button4" class="button-common" onclick="checkAnswer(this.name, this.value)"></button>
+</div>
+<script src="scripts/play-quiz.js"></script>
+<script src="scripts/logout.js"></script>
+<script src="scripts/check-login.js"></script>
+</body>
 </html>

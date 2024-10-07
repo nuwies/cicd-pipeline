@@ -1,16 +1,27 @@
 <!DOCTYPE html>
-    <head>
-        <title>Upload Status</title>
-    </head>
-    <body>
-        <h1>Your question/category has been uploaded successfully!</h1>
-        <br>
-        <div id="nav-buttons">
-            <button id="new-question-btn" onclick="window.location.href='create-category.html'">New Category</button>
-            <br>
-            <button id="new-category-btn" onclick="window.location.href='create-question.html'">New Question</button>
-            <br>
-            <button id="home-btn" onclick="window.location.href='main'">Home</button>
-    </body>
-    <script src="scripts/check-login.js"></script>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Status</title>
+    <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+<h1>Your question/category has been uploaded successfully!</h1>
+<br>
+
+<div id="main-form" style="text-align: center;">
+    <form method="get" action="create-category.html">
+        <button type="submit" class="button-common">New Category</button>
+    </form>
+    <form method="get" action="create-question.html">
+        <button type="submit" class="button-common">New Question</button>
+    </form>
+    <form method="get" action="main">
+        <button type="submit" class="button-common">Home</button>
+    </form>
+</div>
+
+<script src="scripts/check-login.js"></script>
+</body>
 </html>

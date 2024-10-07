@@ -10,7 +10,7 @@ public class MainServlet extends DbConnectionServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
+          throws ServletException, IOException {
     HttpSession session = request.getSession(false);
     if (session == null) {
       response.setStatus(HttpServletResponse.SC_FOUND);
@@ -29,40 +29,45 @@ public class MainServlet extends DbConnectionServlet {
 
     String title = "Logged in as: " + username;
     response.setContentType("text/html");
-    String docType = "<!doctype html public \"-//w3c//dtd html 4.0 transitional//en\">";
+    String docType = "<!DOCTYPE html>";
     StringBuilder html = new StringBuilder(docType + "<html>"
-        + "<head>"
-        + "<title>" + title + "</title>"
-        + "</head>"
-        + "<body bgcolor=\"#f0f0f0\">"
-        + "<h1 align=\"center\">" + title + "</h1>"
-        + "<div style=\"text-align: center;\">");
+            + "<head>"
+            + "<title>" + title + "</title>"
+            + "<link rel=\"stylesheet\" type=\"text/css\" href=\"styles/styles.css\"/>"
+            + "</head>"
+            + "<body>"
+            + "<h1>" + title + "</h1>"
+            + "<div id=\"main-form\" style=\"text-align: center;\">");
 
     if ("admin".equalsIgnoreCase(userType)) {
       html.append("<form action=\"create-category.html\">"
-          + "<input type=\"submit\" value=\"UPLOAD CATEGORY\" />"
-          + "</form>");
+              + "<button type=\"submit\" class=\"button-common\">UPLOAD CATEGORY</button>"
+              + "</form>");
       html.append("<form action=\"create-question.html\" method=\"GET\">"
-          + "<input type=\"submit\" value=\"UPLOAD QUESTION\" />"
-          + "</form>");
+              + "<button type=\"submit\" class=\"button-common\">UPLOAD QUESTION</button>"
+              + "</form>");
       html.append("<form action=\"edit-category.html\" method=\"GET\">"
-          + "<input type=\"submit\" value=\"EDIT CATEGORY\" />"
-          + "</form>");
+              + "<button type=\"submit\" class=\"button-common\">EDIT CATEGORY</button>"
+              + "</form>");
       html.append("<form action=\"edit-question.html\" method=\"GET\">"
-          + "<input type=\"submit\" value=\"EDIT QUESTION\" />"
-          + "</form>");
+              + "<button type=\"submit\" class=\"button-common\">EDIT QUESTION</button>"
+              + "</form>");
     }
 
     html.append("<form action=\"choose-category.html\" method=\"GET\">"
-        + "<input type=\"submit\" value=\"PLAY\" />"
-        + "</form>"
-        + "</div>"
-        + "<div style=\"text-align: center;\">"
-        + "<button id=\"logout-button\">LOGOUT</button>"
-        + "</div>"
-        + "<script src=\"scripts/logout.js\"></script>"
-        + "</body>"
-        + "</html>");
+            + "<button type=\"submit\" class=\"button-common\">PLAY</button>"
+            + "</form>");
+
+
+    html.append("<button id=\"logout-button\" class=\"button-common red-button\">LOGOUT</button>");
+
+    html.append("</div>");
+
+    html.append("<script src=\"scripts/logout.js\"></script>"
+            + "</body>"
+            + "</html>");
+
+
     PrintWriter out = response.getWriter();
     out.println(html);
   }

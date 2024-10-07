@@ -74,7 +74,7 @@ public class CategoryServlet extends DbConnectionServlet {
       if (rowsAffected > 0) {
         response.sendRedirect("upload-success.html");
       } else {
-        response.sendRedirect("upload-failed.html");
+        response.sendRedirect("upload-failure.html");
       }
 
       if (!fileName.trim().isEmpty()) {
@@ -83,7 +83,7 @@ public class CategoryServlet extends DbConnectionServlet {
 
     } catch (Exception e) {
       e.printStackTrace();
-      response.sendRedirect("upload-failed.html");
+      response.sendRedirect("upload-failure.html");
     }
   }
 }
