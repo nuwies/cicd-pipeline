@@ -1,16 +1,24 @@
 <!DOCTYPE html>
-    <head>
-        <title>No Categories</title>
-    </head>
-    <body>
-        <h1>There are no categories!</h1>
-        <p>Upload a category before uploading a question!</p>
-        <form method="get" action="create-category.html">
-            <button type="submit">UPLOAD CATEGORY</button>
-        </form>
-        <form method="get" action="main">
-            <button type="submit">Home</button>
-        </form>
-    </body>
-    <script src="scripts/check-login.js"></script>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>No Categories</title>
+    <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+<h1>There are no categories!</h1>
+<p>Upload a category before uploading a question!</p>
+
+<div id="main-form" style="text-align: center;">
+    <form method="get" action="create-category.html">
+        <button type="submit" class="button-common">Upload Category</button>
+    </form>
+    <form method="get" action="main">
+        <button type="submit" class="button-common">Home</button>
+    </form>
+</div>
+
+<script src="scripts/check-login.js"></script>
+</body>
 </html>
