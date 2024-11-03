@@ -24,7 +24,7 @@
 
 7. Copy all jar files in `WEB-INF/lib` into `path/to/tomcat/lib`.
 
-8. Compile all '.java' files in the `WEB-INF/classes` directory using `javac -g -cp "path/to/tomcat/lib/*" *.java`
+8. Compile all '.java' files in the `WEB-INF/classes` directory using `javac -g -cp ".;path/to/tomcat/lib/*" *.java`
 
 9. Add the following two lines in the 'catalina.bat' file in the bin folder of tomcat. Make sure that the paths make sense for your installation of tomcat.
 
