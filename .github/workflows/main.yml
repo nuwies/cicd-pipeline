@@ -15,6 +15,7 @@ jobs:
         image: mysql:9.0
         env:
           MYSQL_DATABASE: comp_3940
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
         ports:
           - 3306:3306
         options: >-
