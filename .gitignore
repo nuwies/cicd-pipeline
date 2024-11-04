@@ -1,4 +1,7 @@
 media/*
 /WEB-INF/classes/*.class
-/WEB-INF/classes/.elasticbeanstalk/
 .vscode
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

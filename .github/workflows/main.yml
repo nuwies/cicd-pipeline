@@ -69,15 +69,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-2
   
-      - name: Initialize Elastic Beanstalk
-        run: |
-          if ! eb list | grep -q "quizApp"; then
-            eb init quizApp --platform "Tomcat 10 with Corretto 21 running on 64bit Amazon Linux 2023" --region us-west-2
-            eb create quizApp-dev || echo "Environment already exists"
-          fi
-          eb use quizApp-dev
+      # - name: Initialize Elastic Beanstalk
+      #   run: |
+      #     if ! eb list | grep -q "quizApp"; then
+      #       eb init quizApp --platform "Tomcat 10 with Corretto 21 running on 64bit Amazon Linux 2023" --region us-west-2
+      #       eb create quizApp-dev || echo "Environment already exists"
+      #     fi
+      #     eb use quizApp-dev
 
-      - name: Deploy to Elastic Beanstalk
-        run: |
-          eb deploy
-          
+      # - name: Deploy to Elastic Beanstalk
+      #   run: |
+      #     eb deploy
