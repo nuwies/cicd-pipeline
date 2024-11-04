@@ -29,10 +29,16 @@ jobs:
           javac -d build/classes -classpath "$CLASSPATH" WEB-INF/classes/*.java
           
           
-      - name: Package into WAR
+      - name: Package into WAR file
         run: |
           mkdir -p build/webapp/WEB-INF/classes
           cp -r build/classes/* build/webapp/WEB-INF/classes
           cp -r WEB-INF/lib build/webapp/WEB-INF/
           cp -r WEB-INF/web.xml build/webapp/WEB-INF/ 
           cd build && jar -cvf myapp.war -C webapp .
+
+      - name: Upload WAR file (just for testing)
+        uses: actions/upload-artifact@v3
+        with:
+          name: quizapp-war
+          path: build/quizapp.war
