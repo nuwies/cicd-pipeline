@@ -9,6 +9,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:9.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: comp_3940
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd='mysqladmin ping -h localhost' 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=3
     
     steps:
       - name: Checkout code
@@ -23,9 +37,7 @@ jobs:
       - name: Compile Java Servlet
         run: |
           mkdir -p build/classes
-          # Create a classpath variable with all JARs in lib
           CLASSPATH=$(find WEB-INF/lib -name "*.jar" | tr '\n' ':')
-          # Compile all .java files in classes
           javac -d build/classes -classpath "$CLASSPATH" WEB-INF/classes/*.java
           
           
@@ -37,8 +49,21 @@ jobs:
           cp -r WEB-INF/web.xml build/webapp/WEB-INF/ 
           cd build && jar -cvf quizapp.war -C webapp .
 
-      - name: Upload WAR file (just for testing)
+      - name: Upload WAR file (just for checking)
         uses: actions/upload-artifact@v4
         with:
           name: quizapp-war
           path: build/quizapp.war
+          
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/quizapp:latest .
+  
+      - name: Push Docker image
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker push ${{ secrets.DOCKER_USERNAME }}/quizapp:latest
+
+      - name: Clean up Docker image
+        run: |
+          docker rmi ${{ secrets.DOCKER_USERNAME }}/quizapp:latest
