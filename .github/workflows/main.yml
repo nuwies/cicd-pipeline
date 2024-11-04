@@ -12,9 +12,8 @@ jobs:
 
     services:
       mysql:
-        image: mysql:8.0
+        image: mysql:9.0
         env:
-          MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: comp_3940
         ports:
           - 3306:3306
