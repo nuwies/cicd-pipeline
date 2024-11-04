@@ -12,12 +12,10 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          node-version: '20'
+        uses: actions/checkout@v4
       
       - name: Set up JDK 11
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '11'
@@ -40,7 +38,7 @@ jobs:
           cd build && jar -cvf quizapp.war -C webapp .
 
       - name: Upload WAR file (just for testing)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: quizapp-war
           path: build/quizapp.war
